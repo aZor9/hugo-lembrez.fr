@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const cv = await prisma.cv.findFirst({
     orderBy: { updatedAt: "desc" },
