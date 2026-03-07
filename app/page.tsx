@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import Navbar from "@/components/Navbar";
+// import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import CVDownload from "@/components/CVDownload";
 import Projects from "@/components/Projects";
@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <main className="min-h-screen">
         <Hero profile={profile} cv={cv} />
         <CVDownload cv={cv} />

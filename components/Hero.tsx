@@ -59,12 +59,12 @@ export default function Hero({ profile, cv }: HeroProps) {
         </p>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        {/* <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <CVDownload cv={cv} inline />
           <a href="#projects" className="btn-secondary">
             Voir mes projets
           </a>
-        </div>
+        </div> */}
       </div>
     </section>
   );

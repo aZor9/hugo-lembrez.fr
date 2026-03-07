@@ -81,7 +81,8 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
             </object>
           </div>
         </div>
-        {/* Boutons au-dessus de la preview */}
+
+        {/* Boutons de la preview */}
         <div className="flex flex-wrap justify-center gap-3 mb-4">
           <a
             href={cv.fileUrl}
