@@ -3,6 +3,7 @@ export interface ProjectType {
   title: string;
   description: string;
   link: string | null;
+  siteUrl: string | null;
   tags: string;
   order: number;
   createdAt: Date;

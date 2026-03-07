@@ -16,7 +16,7 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const { title, description, link, tags } = body;
+  const { title, description, link, siteUrl, tags } = body;
 
   if (!title || !description) {
     return NextResponse.json(
@@ -31,6 +31,7 @@ export async function PUT(
       title,
       description,
       link: link || null,
+      siteUrl: siteUrl || null,
       tags: JSON.stringify(Array.isArray(tags) ? tags : []),
     },
   });

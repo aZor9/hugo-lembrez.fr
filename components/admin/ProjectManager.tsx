@@ -8,13 +8,15 @@ interface Project {
   title: string;
   description: string;
   link: string | null;
+  siteUrl: string | null;
   tags: string;
+  order: number;
 }
 
 export default function ProjectManager() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", link: "", tags: [] as string[] });
+  const [form, setForm] = useState({ title: "", description: "", link: "", siteUrl: "", tags: [] as string[] });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -81,6 +83,7 @@ export default function ProjectManager() {
       title: project.title,
       description: project.description,
       link: project.link || "",
+      siteUrl: project.siteUrl || "",
       tags: parsedTags,
     });
     setMessage("");
@@ -88,7 +91,7 @@ export default function ProjectManager() {
 
   const resetForm = () => {
     setEditing(null);
-    setForm({ title: "", description: "", link: "", tags: [] });
+    setForm({ title: "", description: "", link: "", siteUrl: "", tags: [] });
   };
 
   const toggleTag = (id: string) => {
@@ -100,6 +103,23 @@ export default function ProjectManager() {
     }));
   };
 
+  const moveProject = async (index: number, direction: "up" | "down") => {
+    const newProjects = [...projects];
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= newProjects.length) return;
+    [newProjects[index], newProjects[swapIndex]] = [newProjects[swapIndex], newProjects[index]];
+    setProjects(newProjects);
+    try {
+      await fetch("/api/projects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: newProjects.map((p) => p.id) }),
+      });
+    } catch {
+      setMessage("Erreur lors du réordonnancement.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-white">Mes Projets</h2>
@@ -107,7 +127,7 @@ export default function ProjectManager() {
       {/* Liste des projets */}
       {projects.length > 0 ? (
         <div className="space-y-3">
-          {projects.map((project) => (
+          {projects.map((project, index) => (
             <div
               key={project.id}
               className={`bg-white/5 rounded-xl p-4 transition-all ${
@@ -115,13 +135,34 @@ export default function ProjectManager() {
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <h3 className="font-medium text-white truncate">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-gray-400 line-clamp-1">
-                    {project.description}
-                  </p>
+                <div className="flex items-center gap-2 min-w-0">
+                  {/* Boutons réordonnancement */}
+                  <div className="flex flex-col gap-0.5 shrink-0">
+                    <button
+                      onClick={() => moveProject(index, "up")}
+                      disabled={index === 0}
+                      className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                      title="Monter"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => moveProject(index, "down")}
+                      disabled={index === projects.length - 1}
+                      className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+                      title="Descendre"
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-medium text-white truncate">{project.title}</h3>
+                    <p className="text-sm text-gray-400 line-clamp-1">{project.description}</p>
+                  </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button
@@ -181,7 +222,17 @@ export default function ProjectManager() {
               type="url"
               value={form.link}
               onChange={(e) => setForm({ ...form, link: e.target.value })}
-              placeholder="Lien vers le projet (optionnel)"
+              placeholder="URL GitHub (optionnel)"
+              className="input-glass"
+            />
+          </div>
+
+          <div>
+            <input
+              type="url"
+              value={form.siteUrl}
+              onChange={(e) => setForm({ ...form, siteUrl: e.target.value })}
+              placeholder="URL du site live (optionnel)"
               className="input-glass"
             />
           </div>

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, description, link, tags } = body;
+  const { title, description, link, siteUrl, tags } = body;
 
   if (!title || !description) {
     return NextResponse.json(
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       title,
       description,
       link: link || null,
+      siteUrl: siteUrl || null,
       tags: JSON.stringify(Array.isArray(tags) ? tags : []),
       order: nextOrder,
     },
@@ -45,4 +46,25 @@ export async function POST(request: NextRequest) {
   revalidatePath("/");
 
   return NextResponse.json(project);
+}
+
+export async function PATCH(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
+  const { ids } = await request.json();
+  if (!Array.isArray(ids)) {
+    return NextResponse.json({ error: "ids requis" }, { status: 400 });
+  }
+
+  await Promise.all(
+    ids.map((id: string, index: number) =>
+      prisma.project.update({ where: { id }, data: { order: index } })
+    )
+  );
+
+  revalidatePath("/");
+  return NextResponse.json({ success: true });
 }

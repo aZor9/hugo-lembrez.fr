@@ -29,7 +29,8 @@ model Project {
   id          String   @id @default(cuid())
   title       String
   description String
-  link        String?
+  link        String?  // URL GitHub
+  siteUrl     String?  // URL du site live
   tags        String   @default("[]")
   order       Int      @default(0)
   createdAt   DateTime @default(now())

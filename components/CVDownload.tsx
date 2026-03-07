@@ -51,12 +51,31 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
 
         {/* Aperçu PDF */}
         <div className="glass p-2 sm:p-4 mb-6">
-          <div className="relative w-full rounded-xl overflow-hidden bg-white" style={{ height: "70vh", minHeight: "500px" }}>
-            <iframe
-              src={`${cv.fileUrl}#view=FitH`}
-              className="w-full h-full border-0"
-              title="Aperçu du CV"
-            />
+          <div className="relative w-full rounded-xl overflow-hidden bg-white" style={{ minHeight: "60vh", height: "70vh" }}>
+            <object
+              data={cv.fileUrl}
+              type="application/pdf"
+              className="w-full h-full"
+              aria-label="Aperçu du CV"
+            >
+              {/* Fallback si le navigateur ne supporte pas */}
+              <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center">
+                <p className="text-gray-500 text-sm">
+                  Ton navigateur ne supporte pas la prévisualisation PDF.
+                </p>
+                <a
+                  href={cv.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary inline-flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Ouvrir le CV
+                </a>
+              </div>
+            </object>
           </div>
         </div>
 

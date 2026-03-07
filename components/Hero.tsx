@@ -53,7 +53,7 @@ export default function Hero({ profile, cv }: HeroProps) {
           {profile?.title || "Développeur Full-Stack"}
         </p>
 
-        <p className="text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed whitespace-pre-line">
           {profile?.bio ||
             "Passionné par le développement web moderne et les technologies innovantes."}
         </p>
