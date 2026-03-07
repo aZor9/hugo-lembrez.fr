@@ -10,7 +10,13 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const all = searchParams.get("all") === "1";
 
-  // Only admins can fetch hidden links; for public use, filter by visible
+  if (all) {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+  }
+
   const links = await prisma.link.findMany({
     where: all ? undefined : { visible: true },
     orderBy: { order: "asc" },
