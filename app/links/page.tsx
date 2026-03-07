@@ -4,18 +4,28 @@ import type { LinkType } from "@/types";
 export const dynamic = "force-dynamic";
 
 export default async function LinksPage() {
-  const links = (await prisma.link.findMany({
-    where: { visible: true },
-    orderBy: { order: "asc" },
-  })) as LinkType[];
+  const [links, profile] = await Promise.all([
+    prisma.link.findMany({
+      where: { visible: true },
+      orderBy: { order: "asc" },
+    }),
+    prisma.profile.findFirst(),
+  ]);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-md space-y-4">
+        
         {/* En-tête */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold gradient-text mb-2">Hugo Lembrez</h1>
-          <p className="text-gray-400 text-sm">Développeur Full-Stack</p>
+          <h1 className="text-3xl font-bold mb-2">
+            <span className="gradient-text">
+              {profile?.name || "Hugo Lembrez"}
+            </span>
+          </h1>
+          <p className="text-gray-400 text-sm">
+            {profile?.title || "Développeur Full-Stack"}
+          </p>
         </div>
 
         {/* Liens */}
