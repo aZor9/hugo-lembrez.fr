@@ -6,6 +6,19 @@ export interface ProjectType {
   siteUrl: string | null;
   tags: string;
   order: number;
+  visible: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface LinkType {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  url: string;
+  order: number;
+  visible: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -16,29 +16,24 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const { title, description, link, siteUrl, tags } = body;
+  const { name, description, icon, url } = body;
 
-  if (!title || !description) {
-    return NextResponse.json(
-      { error: "Titre et description requis" },
-      { status: 400 }
-    );
+  if (!name || !url) {
+    return NextResponse.json({ error: "Nom et URL requis" }, { status: 400 });
   }
 
-  const project = await prisma.project.update({
+  const link = await prisma.link.update({
     where: { id: params.id },
     data: {
-      title,
-      description,
-      link: link || null,
-      siteUrl: siteUrl || null,
-      tags: JSON.stringify(Array.isArray(tags) ? tags : []),
+      name,
+      description: description || null,
+      icon: icon || null,
+      url,
     },
   });
 
-  revalidatePath("/");
-
-  return NextResponse.json(project);
+  revalidatePath("/links");
+  return NextResponse.json(link);
 }
 
 export async function PATCH(
@@ -57,13 +52,13 @@ export async function PATCH(
     return NextResponse.json({ error: "visible (boolean) requis" }, { status: 400 });
   }
 
-  const project = await prisma.project.update({
+  const link = await prisma.link.update({
     where: { id: params.id },
     data: { visible },
   });
 
-  revalidatePath("/");
-  return NextResponse.json(project);
+  revalidatePath("/links");
+  return NextResponse.json(link);
 }
 
 export async function DELETE(
@@ -75,11 +70,8 @@ export async function DELETE(
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  await prisma.project.delete({
-    where: { id: params.id },
-  });
+  await prisma.link.delete({ where: { id: params.id } });
 
-  revalidatePath("/");
-
+  revalidatePath("/links");
   return NextResponse.json({ success: true });
 }

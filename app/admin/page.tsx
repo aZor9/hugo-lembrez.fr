@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import CVUpload from "@/components/admin/CVUpload";
 import ProjectManager from "@/components/admin/ProjectManager";
 import ProfileManager from "@/components/admin/ProfileManager";
+import LinkManager from "@/components/admin/LinkManager";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"cv" | "profile" | "projects">(
+  const [activeTab, setActiveTab] = useState<"cv" | "profile" | "projects" | "links">(
     "cv"
   );
 
@@ -31,6 +32,7 @@ export default function AdminPage() {
     { id: "cv" as const, label: "📄 CV", icon: "CV" },
     { id: "profile" as const, label: "👤 Profil", icon: "Profil" },
     { id: "projects" as const, label: "🚀 Projets", icon: "Projets" },
+    { id: "links" as const, label: "🔗 Liens", icon: "Liens" },
   ];
 
   return (
@@ -79,6 +81,7 @@ export default function AdminPage() {
           {activeTab === "cv" && <CVUpload />}
           {activeTab === "profile" && <ProfileManager />}
           {activeTab === "projects" && <ProjectManager />}
+          {activeTab === "links" && <LinkManager />}
         </div>
       </div>
     </main>

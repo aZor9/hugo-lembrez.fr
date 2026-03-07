@@ -1,34 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TECH_LIST } from "@/lib/tech-icons";
 
-interface Project {
+interface Link {
   id: string;
-  title: string;
-  description: string;
-  link: string | null;
-  siteUrl: string | null;
-  tags: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  url: string;
   order: number;
   visible: boolean;
 }
 
-export default function ProjectManager() {
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function LinkManager() {
+  const [links, setLinks] = useState<Link[]>([]);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ title: "", description: "", link: "", siteUrl: "", tags: [] as string[] });
+  const [form, setForm] = useState({ name: "", description: "", icon: "", url: "" });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetchProjects();
+    fetchLinks();
   }, []);
 
-  const fetchProjects = async () => {
-    const res = await fetch("/api/projects");
+  const fetchLinks = async () => {
+    const res = await fetch("/api/links?all=1");
     const data = await res.json();
-    setProjects(data);
+    setLinks(data);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,19 +35,19 @@ export default function ProjectManager() {
     setMessage("");
 
     try {
-      const url = editing ? `/api/projects/${editing}` : "/api/projects";
+      const url = editing ? `/api/links/${editing}` : "/api/links";
       const method = editing ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, tags: form.tags }),
+        body: JSON.stringify(form),
       });
 
       if (res.ok) {
-        await fetchProjects();
+        await fetchLinks();
         resetForm();
-        setMessage(editing ? "Projet mis à jour !" : "Projet ajouté !");
+        setMessage(editing ? "Lien mis à jour !" : "Lien ajouté !");
       } else {
         const err = await res.json();
         setMessage(err.error || "Erreur lors de la sauvegarde.");
@@ -62,13 +60,13 @@ export default function ProjectManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer ce projet ?")) return;
+    if (!confirm("Supprimer ce lien ?")) return;
 
     try {
-      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/links/${id}`, { method: "DELETE" });
       if (res.ok) {
-        await fetchProjects();
-        setMessage("Projet supprimé.");
+        await fetchLinks();
+        setMessage("Lien supprimé.");
         if (editing === id) resetForm();
       }
     } catch {
@@ -76,35 +74,32 @@ export default function ProjectManager() {
     }
   };
 
-  const handleEdit = (project: Project) => {
-    setEditing(project.id);
-    let parsedTags: string[] = [];
-    try { parsedTags = JSON.parse(project.tags || "[]"); } catch { /* ignore */ }
+  const handleEdit = (link: Link) => {
+    setEditing(link.id);
     setForm({
-      title: project.title,
-      description: project.description,
-      link: project.link || "",
-      siteUrl: project.siteUrl || "",
-      tags: parsedTags,
+      name: link.name,
+      description: link.description || "",
+      icon: link.icon || "",
+      url: link.url,
     });
     setMessage("");
   };
 
   const resetForm = () => {
     setEditing(null);
-    setForm({ title: "", description: "", link: "", siteUrl: "", tags: [] });
+    setForm({ name: "", description: "", icon: "", url: "" });
   };
 
-  const toggleVisible = async (project: Project) => {
+  const toggleVisible = async (link: Link) => {
     try {
-      const res = await fetch(`/api/projects/${project.id}`, {
+      const res = await fetch(`/api/links/${link.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ visible: !project.visible }),
+        body: JSON.stringify({ visible: !link.visible }),
       });
       if (res.ok) {
-        setProjects((prev) =>
-          prev.map((p) => (p.id === project.id ? { ...p, visible: !p.visible } : p))
+        setLinks((prev) =>
+          prev.map((l) => (l.id === link.id ? { ...l, visible: !l.visible } : l))
         );
       }
     } catch {
@@ -112,26 +107,17 @@ export default function ProjectManager() {
     }
   };
 
-  const toggleTag = (id: string) => {
-    setForm((prev) => ({
-      ...prev,
-      tags: prev.tags.includes(id)
-        ? prev.tags.filter((t) => t !== id)
-        : [...prev.tags, id],
-    }));
-  };
-
-  const moveProject = async (index: number, direction: "up" | "down") => {
-    const newProjects = [...projects];
+  const moveLink = async (index: number, direction: "up" | "down") => {
+    const newLinks = [...links];
     const swapIndex = direction === "up" ? index - 1 : index + 1;
-    if (swapIndex < 0 || swapIndex >= newProjects.length) return;
-    [newProjects[index], newProjects[swapIndex]] = [newProjects[swapIndex], newProjects[index]];
-    setProjects(newProjects);
+    if (swapIndex < 0 || swapIndex >= newLinks.length) return;
+    [newLinks[index], newLinks[swapIndex]] = [newLinks[swapIndex], newLinks[index]];
+    setLinks(newLinks);
     try {
-      await fetch("/api/projects", {
+      await fetch("/api/links", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: newProjects.map((p) => p.id) }),
+        body: JSON.stringify({ ids: newLinks.map((l) => l.id) }),
       });
     } catch {
       setMessage("Erreur lors du réordonnancement.");
@@ -140,24 +126,25 @@ export default function ProjectManager() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-white">Mes Projets</h2>
+      <h2 className="text-xl font-semibold text-white">Mes Liens</h2>
+      <p className="text-sm text-gray-500">Ces liens apparaissent sur la page <code className="text-indigo-400">/links</code>.</p>
 
-      {/* Liste des projets */}
-      {projects.length > 0 ? (
+      {/* Liste des liens */}
+      {links.length > 0 ? (
         <div className="space-y-3">
-          {projects.map((project, index) => (
+          {links.map((link, index) => (
             <div
-              key={project.id}
+              key={link.id}
               className={`bg-white/5 rounded-xl p-4 transition-all ${
-                editing === project.id ? "ring-1 ring-indigo-500/30" : ""
-              }`}
+                editing === link.id ? "ring-1 ring-indigo-500/30" : ""
+              } ${!link.visible ? "opacity-50" : ""}`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
                   {/* Boutons réordonnancement */}
                   <div className="flex flex-col gap-0.5 shrink-0">
                     <button
-                      onClick={() => moveProject(index, "up")}
+                      onClick={() => moveLink(index, "up")}
                       disabled={index === 0}
                       className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all"
                       title="Monter"
@@ -167,8 +154,8 @@ export default function ProjectManager() {
                       </svg>
                     </button>
                     <button
-                      onClick={() => moveProject(index, "down")}
-                      disabled={index === projects.length - 1}
+                      onClick={() => moveLink(index, "down")}
+                      disabled={index === links.length - 1}
                       className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all"
                       title="Descendre"
                     >
@@ -177,22 +164,29 @@ export default function ProjectManager() {
                       </svg>
                     </button>
                   </div>
+                  {/* Icône */}
+                  {link.icon && (
+                    <span className="text-xl shrink-0">{link.icon}</span>
+                  )}
                   <div className="min-w-0">
-                    <h3 className="font-medium text-white truncate">{project.title}</h3>
-                    <p className="text-sm text-gray-400 line-clamp-1">{project.description}</p>
+                    <h3 className="font-medium text-white truncate">{link.name}</h3>
+                    {link.description && (
+                      <p className="text-sm text-gray-400 line-clamp-1">{link.description}</p>
+                    )}
+                    <p className="text-xs text-gray-600 truncate">{link.url}</p>
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button
-                    onClick={() => toggleVisible(project)}
-                    title={project.visible ? "Masquer" : "Afficher"}
+                    onClick={() => toggleVisible(link)}
+                    title={link.visible ? "Masquer" : "Afficher"}
                     className={`px-3 py-1.5 text-xs rounded-lg transition-all ${
-                      project.visible
+                      link.visible
                         ? "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30"
                         : "bg-white/5 text-gray-500 hover:bg-white/10"
                     }`}
                   >
-                    {project.visible ? (
+                    {link.visible ? (
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -204,13 +198,13 @@ export default function ProjectManager() {
                     )}
                   </button>
                   <button
-                    onClick={() => handleEdit(project)}
+                    onClick={() => handleEdit(link)}
                     className="px-3 py-1.5 text-xs bg-indigo-500/20 text-indigo-300 rounded-lg hover:bg-indigo-500/30 transition-all"
                   >
                     Modifier
                   </button>
                   <button
-                    onClick={() => handleDelete(project.id)}
+                    onClick={() => handleDelete(link.id)}
                     className="px-3 py-1.5 text-xs bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-all"
                   >
                     Supprimer
@@ -221,88 +215,56 @@ export default function ProjectManager() {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-gray-500">Aucun projet pour le moment.</p>
+        <p className="text-sm text-gray-500">Aucun lien pour le moment.</p>
       )}
 
       {/* Formulaire */}
       <div className="border-t border-white/10 pt-6">
         <h3 className="text-sm font-medium text-gray-300 mb-4">
-          {editing ? "✏️ Modifier le projet" : "➕ Ajouter un projet"}
+          {editing ? "✏️ Modifier le lien" : "➕ Ajouter un lien"}
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
               type="text"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Titre du projet"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Nom (ex: GitHub)"
               className="input-glass"
               required
             />
           </div>
 
           <div>
-            <textarea
+            <input
+              type="text"
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              placeholder="Description du projet"
-              rows={3}
-              className="input-glass resize-none"
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Description (optionnel)"
+              className="input-glass"
+            />
+          </div>
+
+          <div>
+            <input
+              type="text"
+              value={form.icon}
+              onChange={(e) => setForm({ ...form, icon: e.target.value })}
+              placeholder="Icône emoji (ex: 🐙, 💼)"
+              className="input-glass"
+            />
+          </div>
+
+          <div>
+            <input
+              type="url"
+              value={form.url}
+              onChange={(e) => setForm({ ...form, url: e.target.value })}
+              placeholder="URL (https://...)"
+              className="input-glass"
               required
             />
-          </div>
-
-          <div>
-            <input
-              type="url"
-              value={form.link}
-              onChange={(e) => setForm({ ...form, link: e.target.value })}
-              placeholder="URL GitHub (optionnel)"
-              className="input-glass"
-            />
-          </div>
-
-          <div>
-            <input
-              type="url"
-              value={form.siteUrl}
-              onChange={(e) => setForm({ ...form, siteUrl: e.target.value })}
-              placeholder="URL du site live (optionnel)"
-              className="input-glass"
-            />
-          </div>
-
-          {/* Sélecteur de technologies */}
-          <div>
-            <label className="text-xs text-gray-500 block mb-2">Technologies</label>
-            <div className="flex flex-wrap gap-2">
-              {TECH_LIST.map((tech) => {
-                const active = form.tags.includes(tech.id);
-                return (
-                  <button
-                    key={tech.id}
-                    type="button"
-                    onClick={() => toggleTag(tech.id)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-                      active
-                        ? "border-white/20 bg-white/10 text-white"
-                        : "border-white/5 bg-white/[0.02] text-gray-500 hover:bg-white/5 hover:text-gray-300"
-                    }`}
-                  >
-                    <span
-                      className="w-3.5 h-3.5 shrink-0"
-                      style={{ color: active ? tech.color : undefined }}
-                    >
-                      {tech.icon}
-                    </span>
-                    {tech.label}
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -311,11 +273,7 @@ export default function ProjectManager() {
               disabled={saving}
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saving
-                ? "Sauvegarde..."
-                : editing
-                ? "Mettre à jour"
-                : "Ajouter"}
+              {saving ? "Sauvegarde..." : editing ? "Mettre à jour" : "Ajouter"}
             </button>
 
             {editing && (

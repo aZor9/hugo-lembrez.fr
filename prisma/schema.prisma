@@ -33,10 +33,25 @@ model Project {
   siteUrl     String?  // URL du site live
   tags        String   @default("[]")
   order       Int      @default(0)
+  visible     Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@map("projects")
+}
+
+model Link {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  icon        String?  // URL d'icône (emoji ou URL image)
+  url         String
+  order       Int      @default(0)
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("links")
 }
 
 model Profile {

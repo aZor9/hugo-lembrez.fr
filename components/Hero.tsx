@@ -65,6 +65,29 @@ export default function Hero({ profile, cv }: HeroProps) {
             Voir mes projets
           </a>
         </div> */}
+
+        {/* Flèche de scroll */}
+        <div className="mt-12 flex justify-center">
+          <a
+            href="#cv-preview"
+            className="text-gray-500 hover:text-gray-300 transition-colors animate-bounce"
+            aria-label="Défiler vers le bas"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
     </section>
   );

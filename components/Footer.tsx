@@ -27,6 +27,11 @@ export default function Footer() {
             <h3 className="text-lg font-semibold gradient-text mb-4">Liens</h3>
             <div className="space-y-2 text-gray-400 text-sm">
               <p>
+                <a href="/links" className="hover:text-white transition-colors">
+                  Tous mes liens
+                </a>
+              </p>
+              <p>
                 <a
                   href="https://github.com/aZor9"
                   target="_blank"

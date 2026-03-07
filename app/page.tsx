@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const [profile, projects, cv] = await Promise.all([
     prisma.profile.findFirst(),
-    prisma.project.findMany({ orderBy: { order: "asc" } }),
+    prisma.project.findMany({ where: { visible: true }, orderBy: { order: "asc" } }),
     prisma.cv.findFirst({ orderBy: { updatedAt: "desc" } }),
   ]);
 
