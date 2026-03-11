@@ -16,7 +16,7 @@ export default function Footer() {
                   href="mailto:contact@hugo-lembrez.fr"
                   className="hover:text-white transition-colors"
                 >
-                  hugo.lembrez@gmail.com
+                  contact@hugo-lembrez.fr
                 </a>
               </p>
             </div>

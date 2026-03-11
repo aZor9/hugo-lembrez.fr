@@ -19,9 +19,9 @@ export default async function LinksPage() {
         {/* En-tête */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold mb-2">
-            <span className="gradient-text">
+            <a href="/" className="gradient-text">
               {profile?.name || "Hugo Lembrez"}
-            </span>
+            </a>
           </h1>
           <p className="text-gray-400 text-sm">
             {profile?.title || "Développeur Full-Stack"}
@@ -70,7 +70,7 @@ export default async function LinksPage() {
 
         {/* Footer minimal */}
         <p className="text-center text-gray-600 text-xs pt-8">
-          © {new Date().getFullYear()} Hugo Lembrez
+          <a href="/" >© {new Date().getFullYear()} Hugo Lembrez </a>
         </p>
       </div>
     </main>
