@@ -9,6 +9,36 @@ import path from "path";
 
 export const dynamic = "force-dynamic";
 
+function removePdfExtension(fileName: string): string {
+  return fileName.replace(/\.pdf$/i, "");
+}
+
+function slugifyFileName(fileName: string): string {
+  return removePdfExtension(fileName)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function buildStorageFileName(baseName: string): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const hh = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+
+  const slug = slugifyFileName(baseName) || "cv";
+  return `${slug}-${yyyy}${mm}${dd}-${hh}${min}.pdf`;
+}
+
+function buildPublicFileName(fileName: string): string {
+  const slug = slugifyFileName(fileName) || "cv";
+  return `${slug}.pdf`;
+}
+
 export async function GET() {
   const cv = await prisma.cv.findFirst({
     orderBy: { updatedAt: "desc" },
@@ -28,8 +58,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Nom de fichier requis" }, { status: 400 });
     }
 
-    const sanitized = fileName.replace(/[^a-zA-Z0-9À-ÿ _\-().]/g, "").trim();
-    if (!sanitized) {
+    const sanitized = buildPublicFileName(fileName);
+    if (!sanitized || sanitized === ".pdf") {
       return NextResponse.json({ error: "Nom de fichier invalide" }, { status: 400 });
     }
 
@@ -68,23 +98,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const publicFileName = buildPublicFileName(file.name);
+    const storageFileName = buildStorageFileName(file.name);
+
     let fileUrl: string;
 
     if (isBlobConfigured()) {
       const { put } = await import("@vercel/blob");
-      const blob = await put(`cv/${file.name}`, file, {
+      const blob = await put(`cv/${storageFileName}`, file, {
         access: "public",
-        addRandomSuffix: true,
+        addRandomSuffix: false,
       });
       fileUrl = blob.url;
     } else {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const fileName = `cv-${Date.now()}.pdf`;
       const uploadsDir = path.join(process.cwd(), "public", "uploads");
       await fs.mkdir(uploadsDir, { recursive: true });
-      await fs.writeFile(path.join(uploadsDir, fileName), buffer);
-      fileUrl = `/uploads/${fileName}`;
+      await fs.writeFile(path.join(uploadsDir, storageFileName), buffer);
+      fileUrl = `/uploads/${storageFileName}`;
     }
 
     await prisma.cv.deleteMany();
@@ -92,7 +124,7 @@ export async function POST(request: NextRequest) {
     const cv = await prisma.cv.create({
       data: {
         fileUrl,
-        fileName: file.name,
+        fileName: publicFileName,
       },
     });
 

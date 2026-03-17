@@ -8,6 +8,9 @@ interface CVDownloadProps {
 export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
   if (!cv) return null;
 
+  const cvViewUrl = "/CV";
+  const cvDownloadUrl = "/CV?download=1";
+
   const formattedDate = new Date(cv.updatedAt).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",
@@ -17,7 +20,7 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
   if (inline) {
     return (
       <a
-        href={cv.fileUrl}
+        href={cvDownloadUrl}
         download={cv.fileName}
         className="btn-primary inline-flex items-center gap-2"
       >
@@ -53,7 +56,7 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
         <div className="glass p-2 sm:p-4 mb-4">
           <div className="relative w-full rounded-xl overflow-hidden bg-white" style={{ minHeight: "60vh", height: "70vh" }}>
             <object
-              data={cv.fileUrl}
+              data={cvViewUrl}
               type="application/pdf"
               className="w-full h-full"
               aria-label="Aperçu du CV"
@@ -67,7 +70,7 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
                   La prévisualisation PDF n&apos;est pas disponible sur ce navigateur.
                 </p>
                 <a
-                  href={cv.fileUrl}
+                  href={cvViewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-secondary inline-flex items-center gap-2"
@@ -85,7 +88,7 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
         {/* Boutons de la preview */}
         <div className="flex flex-wrap justify-center gap-3 mb-4">
           <a
-            href={cv.fileUrl}
+            href={cvViewUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-secondary inline-flex items-center gap-2 text-sm"
@@ -96,7 +99,7 @@ export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
             Ouvrir dans un nouvel onglet
           </a>
           <a
-            href={cv.fileUrl}
+            href={cvDownloadUrl}
             download={cv.fileName}
             className="btn-primary inline-flex items-center gap-2 text-sm"
           >

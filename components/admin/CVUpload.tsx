@@ -118,7 +118,7 @@ export default function CVUpload() {
               </p>
             </div>
             <a
-              href={cv.fileUrl}
+              href="/CV"
               target="_blank"
               rel="noopener noreferrer"
               className="shrink-0 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
