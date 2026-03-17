@@ -4,8 +4,12 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL || "admin@hugo-lembrez.fr";
-  const password = process.env.ADMIN_PASSWORD || "changeme123";
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    throw new Error("ADMIN_EMAIL et ADMIN_PASSWORD doivent être définis pour exécuter le seed.");
+  }
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
