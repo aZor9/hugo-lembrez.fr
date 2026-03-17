@@ -46,7 +46,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <a
               href="/"
-              className="text-sm text-gray-400 hover:text-white transition-colors hidden sm:block"
+              className="text-sm text-gray-400 hover:text-white transition-colors sm:block"
             >
               Voir le site
             </a>
