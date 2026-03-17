@@ -31,7 +31,7 @@ async function main() {
 
   console.log("✅ Seed terminé avec succès !");
   console.log(`   Email: ${email}`);
-  console.log(`   Mot de passe: ${password}`);
+  console.log("   Mot de passe: (non affiché pour des raisons de sécurité)");
 }
 
 main()
