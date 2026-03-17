@@ -1,116 +1,239 @@
+"use client";
+
+import { useState } from "react";
 import type { CvType } from "@/types";
 
 interface CVDownloadProps {
-  cv: CvType | null;
+  normalCv: CvType | null;
+  reducedCv: CvType | null;
   inline?: boolean;
 }
 
-export default function CVDownload({ cv, inline = false }: CVDownloadProps) {
-  if (!cv) return null;
+export default function CVDownload({
+  normalCv,
+  reducedCv,
+  inline = false,
+}: CVDownloadProps) {
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+
+  if (!normalCv) return null;
 
   const cvViewUrl = "/CV";
   const cvDownloadUrl = "/CV?download=1";
+  const reducedViewUrl = "/CV-leger";
+  const reducedDownloadUrl = "/CV-leger?download=1";
 
-  const formattedDate = new Date(cv.updatedAt).toLocaleDateString("fr-FR", {
+  const formattedDate = new Date(normalCv.updatedAt).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 
+  const infoButton = (
+    <button
+      type="button"
+      onClick={() => setIsInfoOpen(true)}
+      className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-gray-200 transition-colors hover:bg-white/10 hover:text-white"
+      aria-label="Informations sur le CV léger"
+      title="Informations sur le CV léger"
+    >
+      <svg
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="9" strokeWidth="1.8" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 10v6" />
+        <circle cx="12" cy="7" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    </button>
+  );
+
   if (inline) {
     return (
-      <a
-        href={cvDownloadUrl}
-        download={cv.fileName}
-        className="btn-primary inline-flex items-center gap-2"
-      >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      <div className="flex items-center gap-2">
+        <a
+          href={cvDownloadUrl}
+          download={normalCv.fileName}
+          className="btn-primary inline-flex items-center gap-2"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Télécharger mon CV
+        </a>
+        {infoButton}
+        {isInfoOpen && (
+          <ReducedCvModal
+            reducedCv={reducedCv}
+            reducedViewUrl={reducedViewUrl}
+            reducedDownloadUrl={reducedDownloadUrl}
+            onClose={() => setIsInfoOpen(false)}
           />
-        </svg>
-        Télécharger mon CV
-      </a>
+        )}
+      </div>
     );
   }
 
   return (
-    <section id="cv-preview" className="py-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">
-          <span className="gradient-text">Mon CV</span>
-        </h2>
-        <p className="text-center text-sm text-gray-500 mb-8">
-          Mis à jour le {formattedDate}
-        </p>
+    <>
+      <section id="cv-preview" className="py-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">
+            <span className="gradient-text">Mon CV</span>
+          </h2>
+          <p className="text-center text-sm text-gray-500 mb-8">
+            Mis à jour le {formattedDate}
+          </p>
 
-        {/* Aperçu PDF */}
-        <div className="glass p-2 sm:p-4 mb-4">
-          <div className="relative w-full rounded-xl overflow-hidden bg-white" style={{ minHeight: "60vh", height: "70vh" }}>
-            <object
-              data={cvViewUrl}
-              type="application/pdf"
-              className="w-full h-full"
-              aria-label="Aperçu du CV"
+          <div className="glass p-2 sm:p-4 mb-4">
+            <div
+              className="relative w-full rounded-xl overflow-hidden bg-white"
+              style={{ minHeight: "60vh", height: "70vh" }}
             >
-              {/* Fallback automatique si le navigateur ne supporte pas (ex: Chrome Android) */}
-              <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center bg-slate-900">
-                <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p className="text-gray-400 text-sm max-w-xs">
-                  La prévisualisation PDF n&apos;est pas disponible sur ce navigateur.
-                </p>
-                <a
-                  href={cvViewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary inline-flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              <object
+                data={cvViewUrl}
+                type="application/pdf"
+                className="w-full h-full"
+                aria-label="Aperçu du CV"
+              >
+                <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center bg-slate-900">
+                  <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Ouvrir le CV
-                </a>
-              </div>
-            </object>
+                  <p className="text-gray-400 text-sm max-w-xs">
+                    La prévisualisation PDF n&apos;est pas disponible sur ce navigateur.
+                  </p>
+                  <a
+                    href={cvViewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary inline-flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Ouvrir le CV
+                  </a>
+                </div>
+              </object>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3 mb-4">
+            <a
+              href={cvViewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary inline-flex items-center gap-2 text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Ouvrir dans un nouvel onglet
+            </a>
+
+            <div className="flex items-center gap-2">
+              <a
+                href={cvDownloadUrl}
+                download={normalCv.fileName}
+                className="btn-primary inline-flex items-center gap-2 text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Télécharger
+              </a>
+              {infoButton}
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Boutons de la preview */}
-        <div className="flex flex-wrap justify-center gap-3 mb-4">
-          <a
-            href={cvViewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary inline-flex items-center gap-2 text-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            Ouvrir dans un nouvel onglet
-          </a>
-          <a
-            href={cvDownloadUrl}
-            download={cv.fileName}
-            className="btn-primary inline-flex items-center gap-2 text-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Télécharger
-          </a>
+      {isInfoOpen && (
+        <ReducedCvModal
+          reducedCv={reducedCv}
+          reducedViewUrl={reducedViewUrl}
+          reducedDownloadUrl={reducedDownloadUrl}
+          onClose={() => setIsInfoOpen(false)}
+        />
+      )}
+    </>
+  );
+}
+
+interface ReducedCvModalProps {
+  reducedCv: CvType | null;
+  reducedViewUrl: string;
+  reducedDownloadUrl: string;
+  onClose: () => void;
+}
+
+function ReducedCvModal({
+  reducedCv,
+  reducedViewUrl,
+  reducedDownloadUrl,
+  onClose,
+}: ReducedCvModalProps) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <button
+        type="button"
+        aria-label="Fermer la fenêtre"
+        className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900/95 p-6 shadow-2xl">
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Version réduite du CV</h3>
+          <p className="text-sm leading-relaxed text-gray-300">
+            Si le CV téléchargé présente un bug d&apos;affichage ou que certaines images ne se chargent pas,
+            une version réduite est disponible. Cette version est aplatie, donc certains liens interactifs
+            dans le document peuvent ne plus fonctionner.
+          </p>
+
+          {reducedCv ? (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <a
+                href={reducedViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary inline-flex items-center justify-center"
+              >
+                Visualiser le modèle réduit
+              </a>
+              <a
+                href={reducedDownloadUrl}
+                download={reducedCv.fileName}
+                className="btn-primary inline-flex items-center justify-center"
+              >
+                Télécharger le modèle réduit
+              </a>
+            </div>
+          ) : (
+            <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-400">
+              Aucun modèle réduit n&apos;est encore disponible.
+            </p>
+          )}
+
+          <button type="button" onClick={onClose} className="btn-secondary inline-flex items-center justify-center">
+            Fermer
+          </button>
         </div>
-        
       </div>
-    </section>
+    </div>
   );
 }

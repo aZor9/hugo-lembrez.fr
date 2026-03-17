@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  buildPublicFileName,
+  buildStorageFileName,
+  CV_VARIANTS,
+  getCvRoutePath,
+  isCvVariant,
+} from "@/lib/cv";
 import { isBlobConfigured } from "@/lib/upload";
 import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
@@ -9,41 +16,40 @@ import path from "path";
 
 export const dynamic = "force-dynamic";
 
-function removePdfExtension(fileName: string): string {
-  return fileName.replace(/\.pdf$/i, "");
+interface StoredCv {
+  id: string;
+  variant: string;
+  fileUrl: string;
+  fileName: string;
+  updatedAt: Date;
 }
 
-function slugifyFileName(fileName: string): string {
-  return removePdfExtension(fileName)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+function sortVariantOrder(a: { variant: string }, b: { variant: string }) {
+  return CV_VARIANTS.indexOf(a.variant as (typeof CV_VARIANTS)[number]) -
+    CV_VARIANTS.indexOf(b.variant as (typeof CV_VARIANTS)[number]);
 }
 
-function buildStorageFileName(baseName: string): string {
-  const now = new Date();
-  const yyyy = now.getFullYear();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  const hh = String(now.getHours()).padStart(2, "0");
-  const min = String(now.getMinutes()).padStart(2, "0");
+export async function GET(request: NextRequest) {
+  const variant = request.nextUrl.searchParams.get("variant");
 
-  const slug = slugifyFileName(baseName) || "cv";
-  return `${slug}-${yyyy}${mm}${dd}-${hh}${min}.pdf`;
-}
+  if (variant) {
+    if (!isCvVariant(variant)) {
+      return NextResponse.json({ error: "Type de CV invalide" }, { status: 400 });
+    }
 
-function buildPublicFileName(fileName: string): string {
-  const slug = slugifyFileName(fileName) || "cv";
-  return `${slug}.pdf`;
-}
+    const cv = (await (prisma.cv.findFirst as any)({
+      where: { variant },
+    })) as StoredCv | null;
 
-export async function GET() {
-  const cv = await prisma.cv.findFirst({
-    orderBy: { updatedAt: "desc" },
-  });
-  return NextResponse.json(cv);
+    if (!cv) {
+      return NextResponse.json({ error: "CV introuvable" }, { status: 404 });
+    }
+
+    return NextResponse.json(cv);
+  }
+
+  const cvs = (await prisma.cv.findMany()) as StoredCv[];
+  return NextResponse.json(cvs.sort(sortVariantOrder));
 }
 
 export async function PATCH(request: NextRequest) {
@@ -53,27 +59,32 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const { fileName } = await request.json();
+    const { id, fileName } = await request.json();
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ error: "Identifiant requis" }, { status: 400 });
+    }
+
     if (!fileName || typeof fileName !== "string") {
       return NextResponse.json({ error: "Nom de fichier requis" }, { status: 400 });
     }
 
-    const sanitized = buildPublicFileName(fileName);
+    const cv = (await prisma.cv.findUnique({ where: { id } })) as StoredCv | null;
+    if (!cv || !isCvVariant(cv.variant)) {
+      return NextResponse.json({ error: "CV introuvable" }, { status: 404 });
+    }
+
+    const sanitized = buildPublicFileName(fileName, cv.variant);
     if (!sanitized || sanitized === ".pdf") {
       return NextResponse.json({ error: "Nom de fichier invalide" }, { status: 400 });
     }
 
-    const cv = await prisma.cv.findFirst({ orderBy: { updatedAt: "desc" } });
-    if (!cv) {
-      return NextResponse.json({ error: "Aucun CV trouvé" }, { status: 404 });
-    }
-
     const updated = await prisma.cv.update({
-      where: { id: cv.id },
+      where: { id },
       data: { fileName: sanitized },
     });
 
     revalidatePath("/");
+    revalidatePath(getCvRoutePath(cv.variant));
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Erreur renommage CV:", error);
@@ -90,6 +101,11 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const variantValue = formData.get("variant");
+
+    if (!variantValue || typeof variantValue !== "string" || !isCvVariant(variantValue)) {
+      return NextResponse.json({ error: "Type de CV invalide" }, { status: 400 });
+    }
 
     if (!file || file.type !== "application/pdf") {
       return NextResponse.json(
@@ -98,8 +114,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const publicFileName = buildPublicFileName(file.name);
-    const storageFileName = buildStorageFileName(file.name);
+    const publicFileName = buildPublicFileName(file.name, variantValue);
+    const storageFileName = buildStorageFileName(file.name, variantValue);
 
     let fileUrl: string;
 
@@ -119,16 +135,28 @@ export async function POST(request: NextRequest) {
       fileUrl = `/uploads/${storageFileName}`;
     }
 
-    await prisma.cv.deleteMany();
+    const existingCv = (await (prisma.cv.findFirst as any)({
+      where: { variant: variantValue },
+    })) as StoredCv | null;
 
-    const cv = await prisma.cv.create({
-      data: {
-        fileUrl,
-        fileName: publicFileName,
-      },
-    });
+    const cv = existingCv
+      ? await prisma.cv.update({
+          where: { id: existingCv.id },
+          data: {
+            fileUrl,
+            fileName: publicFileName,
+          },
+        })
+      : await (prisma.cv.create as any)({
+          data: {
+            variant: variantValue,
+            fileUrl,
+            fileName: publicFileName,
+          },
+        });
 
     revalidatePath("/");
+    revalidatePath(getCvRoutePath(variantValue));
 
     return NextResponse.json(cv);
   } catch (error) {

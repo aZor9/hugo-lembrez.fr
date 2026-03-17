@@ -5,5 +5,5 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
-  return serveCvVariant(request, "normal", "/CV");
+  return serveCvVariant(request, "reduit", "/CV-leger");
 }

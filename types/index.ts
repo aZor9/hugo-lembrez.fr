@@ -32,9 +32,12 @@ export interface ProfileType {
   updatedAt: Date;
 }
 
+export type CvVariant = "normal" | "reduit";
+
 export interface CvType {
   id: string;
+  variant: CvVariant;
   fileUrl: string;
   fileName: string;
-  updatedAt: Date;
+  updatedAt: Date | string;
 }

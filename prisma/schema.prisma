@@ -18,6 +18,7 @@ model User {
 
 model Cv {
   id        String   @id @default(cuid())
+  variant   String   @default("normal") @unique
   fileUrl   String
   fileName  String
   updatedAt DateTime @default(now()) @updatedAt
