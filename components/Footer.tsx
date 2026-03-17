@@ -59,9 +59,17 @@ export default function Footer() {
             <h3 className="text-lg font-semibold gradient-text mb-4">
               Mentions légales
             </h3>
-            <p className="text-gray-500 text-sm">
-              © {year} Hugo Lembrez. Tous droits réservés.
-            </p>
+            <div className="space-y-2 text-sm">
+              <p>
+                <a
+                  href="/mentions-legales"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Consulter les mentions légales
+                </a>
+              </p>
+              <p className="text-gray-500">© {year} Hugo Lembrez. Tous droits réservés.</p>
+            </div>
           </div>
         </div>
 
