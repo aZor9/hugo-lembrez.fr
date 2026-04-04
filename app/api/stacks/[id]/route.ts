@@ -15,24 +15,41 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const { name, description, icon, url } = body;
+  const { techId, label, categoryId } = body;
 
-  if (!name || !url) {
-    return NextResponse.json({ error: "Nom et URL requis" }, { status: 400 });
+  if (!techId || !label || !categoryId) {
+    return NextResponse.json(
+      { error: "techId, label et categoryId sont requis" },
+      { status: 400 }
+    );
   }
 
-  const link = await prisma.link.update({
+  const existing = await prisma.stackItem.findUnique({ where: { id: params.id } });
+  if (!existing) {
+    return NextResponse.json({ error: "Élément introuvable" }, { status: 404 });
+  }
+
+  let nextOrder: number | undefined;
+  if (existing.categoryId !== categoryId) {
+    const maxOrder = await prisma.stackItem.aggregate({
+      where: { categoryId },
+      _max: { order: true },
+    });
+    nextOrder = (maxOrder._max.order ?? -1) + 1;
+  }
+
+  const item = await prisma.stackItem.update({
     where: { id: params.id },
     data: {
-      name,
-      description: description || null,
-      icon: icon || null,
-      url,
+      techId,
+      label: label.trim(),
+      categoryId,
+      order: typeof nextOrder === "number" ? nextOrder : undefined,
     },
   });
 
-  revalidatePath("/links");
-  return NextResponse.json(link);
+  revalidatePath("/");
+  return NextResponse.json(item);
 }
 
 export async function PATCH(
@@ -51,13 +68,13 @@ export async function PATCH(
     return NextResponse.json({ error: "visible (boolean) requis" }, { status: 400 });
   }
 
-  const link = await prisma.link.update({
+  const item = await prisma.stackItem.update({
     where: { id: params.id },
     data: { visible },
   });
 
-  revalidatePath("/links");
-  return NextResponse.json(link);
+  revalidatePath("/");
+  return NextResponse.json(item);
 }
 
 export async function DELETE(
@@ -69,8 +86,10 @@ export async function DELETE(
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  await prisma.link.delete({ where: { id: params.id } });
+  await prisma.stackItem.delete({
+    where: { id: params.id },
+  });
 
-  revalidatePath("/links");
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }

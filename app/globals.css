@@ -53,5 +53,18 @@
     @apply w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white
       placeholder-gray-500 focus:outline-none focus:border-indigo-500/50
       focus:bg-white/10 transition-all;
+    color-scheme: dark;
+  }
+
+  .select-glass {
+    @apply input-glass appearance-none pr-10 bg-no-repeat bg-right bg-[length:16px_16px];
+    background-image: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.75) 50%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.75) 50%, transparent 50%);
+    background-position: calc(100% - 22px) calc(50% - 2px), calc(100% - 16px) calc(50% - 2px);
+  }
+
+  .select-glass option {
+    background-color: #0f172a;
+    color: #f8fafc;
   }
 }

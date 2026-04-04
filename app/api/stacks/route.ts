@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const all = searchParams.get("all") === "1";
+  const categoryId = searchParams.get("categoryId") || undefined;
 
   if (all) {
     const user = await getAuthenticatedUser();
@@ -16,11 +17,15 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const links = await prisma.link.findMany({
-    where: all ? undefined : { visible: true },
+  const items = await prisma.stackItem.findMany({
+    where: {
+      ...(all ? {} : { visible: true }),
+      ...(categoryId ? { categoryId } : {}),
+    },
     orderBy: { order: "asc" },
   });
-  return NextResponse.json(links);
+
+  return NextResponse.json(items);
 }
 
 export async function POST(request: NextRequest) {
@@ -30,27 +35,37 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, description, icon, url } = body;
+  const { techId, label, categoryId } = body;
 
-  if (!name || !url) {
-    return NextResponse.json({ error: "Nom et URL requis" }, { status: 400 });
+  if (!techId || !label || !categoryId) {
+    return NextResponse.json(
+      { error: "techId, label et categoryId sont requis" },
+      { status: 400 }
+    );
   }
 
-  const maxOrder = await prisma.link.aggregate({ _max: { order: true } });
+  const category = await prisma.stackCategory.findUnique({ where: { id: categoryId } });
+  if (!category) {
+    return NextResponse.json({ error: "Categorie introuvable" }, { status: 404 });
+  }
+
+  const maxOrder = await prisma.stackItem.aggregate({
+    where: { categoryId },
+    _max: { order: true },
+  });
   const nextOrder = (maxOrder._max.order ?? -1) + 1;
 
-  const link = await prisma.link.create({
+  const item = await prisma.stackItem.create({
     data: {
-      name,
-      description: description || null,
-      icon: icon || null,
-      url,
+      techId,
+      label: label.trim(),
+      categoryId,
       order: nextOrder,
     },
   });
 
-  revalidatePath("/links");
-  return NextResponse.json(link);
+  revalidatePath("/");
+  return NextResponse.json(item);
 }
 
 export async function PATCH(request: NextRequest) {
@@ -66,11 +81,11 @@ export async function PATCH(request: NextRequest) {
 
   await Promise.all(
     ids.map((id: string, index: number) =>
-      prisma.link.update({ where: { id }, data: { order: index } })
+      prisma.stackItem.update({ where: { id }, data: { order: index } })
     )
   );
 
-  revalidatePath("/links");
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }
 

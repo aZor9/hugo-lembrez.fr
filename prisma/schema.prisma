@@ -65,3 +65,59 @@ model Profile {
 
   @@map("profiles")
 }
+
+model HomeSectionSettings {
+  id                     String   @id @default(cuid())
+  key                    String   @unique @default("home")
+  stacksVisible          Boolean  @default(true)
+  stacksTitle            String   @default("Stacks techniques")
+  educationVisible       Boolean  @default(true)
+  educationTitle         String   @default("Formation")
+  educationLeadVisible   Boolean  @default(true)
+  educationLeadTitle     String   @default("En recherche d'une formation en alternance")
+  educationLeadSubtitle  String   @default("Ouvert aux opportunités")
+  updatedAt              DateTime @updatedAt
+
+  @@map("home_section_settings")
+}
+
+model StackCategory {
+  id        String      @id @default(cuid())
+  name      String
+  order     Int         @default(0)
+  visible   Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  items     StackItem[]
+
+  @@map("stack_categories")
+}
+
+model StackItem {
+  id          String        @id @default(cuid())
+  techId      String
+  label       String
+  categoryId  String
+  category    StackCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  order       Int           @default(0)
+  visible     Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("stack_items")
+}
+
+model EducationItem {
+  id          String   @id @default(cuid())
+  title       String
+  school      String
+  period      String
+  statusLabel String?  // ex: Obtenu
+  description String?
+  order       Int      @default(0)
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("education_items")
+}

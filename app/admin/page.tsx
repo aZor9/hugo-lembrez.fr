@@ -7,11 +7,15 @@ import CVUpload from "@/components/admin/CVUpload";
 import ProjectManager from "@/components/admin/ProjectManager";
 import ProfileManager from "@/components/admin/ProfileManager";
 import LinkManager from "@/components/admin/LinkManager";
+import StackManager from "@/components/admin/StackManager";
+import EducationManager from "@/components/admin/EducationManager";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"cv" | "profile" | "projects" | "links">(
+  const [activeTab, setActiveTab] = useState<
+    "cv" | "profile" | "projects" | "links" | "stacks" | "education"
+  >(
     "cv"
   );
 
@@ -33,6 +37,8 @@ export default function AdminPage() {
     { id: "profile" as const, label: "👤 Profil", icon: "Profil" },
     { id: "projects" as const, label: "🚀 Projets", icon: "Projets" },
     { id: "links" as const, label: "🔗 Liens", icon: "Liens" },
+    { id: "stacks" as const, label: "🧰 Stacks", icon: "Stacks" },
+    { id: "education" as const, label: "🎓 Formation", icon: "Formation" },
   ];
 
   return (
@@ -82,6 +88,8 @@ export default function AdminPage() {
           {activeTab === "profile" && <ProfileManager />}
           {activeTab === "projects" && <ProjectManager />}
           {activeTab === "links" && <LinkManager />}
+          {activeTab === "stacks" && <StackManager />}
+          {activeTab === "education" && <EducationManager />}
         </div>
       </div>
     </main>

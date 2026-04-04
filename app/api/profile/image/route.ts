@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isBlobConfigured } from "@/lib/upload";
 import { revalidatePath } from "next/cache";
@@ -17,7 +16,7 @@ async function processImage(file: File, cropData?: string): Promise<Buffer> {
   const bytes = await file.arrayBuffer();
   let pipeline = sharp(Buffer.from(bytes));
 
-  // Si des données de recadrage sont fournies (JSON: {x, y, width, height})
+  // Crop data JSON format: {x, y, width, height}
   if (cropData) {
     try {
       const crop = JSON.parse(cropData);
@@ -34,7 +33,7 @@ async function processImage(file: File, cropData?: string): Promise<Buffer> {
     }
   }
 
-  // Redimensionner en carré 512x512 et convertir en webp
+  // Resize to 512x512 square and convert to webp
   return pipeline
     .resize(512, 512, { fit: "cover", position: "center" })
     .webp({ quality: 85 })
@@ -43,9 +42,9 @@ async function processImage(file: File, cropData?: string): Promise<Buffer> {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Non autorise" }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: "Format accepté : JPG, PNG, WebP ou SVG" },
+        { error: "Format accepte : JPG, PNG, WebP ou SVG" },
         { status: 400 }
       );
     }
@@ -101,7 +100,7 @@ export async function POST(request: NextRequest) {
       profile = await prisma.profile.create({
         data: {
           name: "Hugo Lembrez",
-          title: "Développeur Full-Stack",
+          title: "Developpeur Full-Stack",
           bio: "",
           imageUrl,
         },
@@ -119,3 +118,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

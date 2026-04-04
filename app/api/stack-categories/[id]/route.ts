@@ -15,24 +15,19 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const { name, description, icon, url } = body;
+  const { name } = body;
 
-  if (!name || !url) {
-    return NextResponse.json({ error: "Nom et URL requis" }, { status: 400 });
+  if (!name || typeof name !== "string") {
+    return NextResponse.json({ error: "Nom de catégorie requis" }, { status: 400 });
   }
 
-  const link = await prisma.link.update({
+  const category = await prisma.stackCategory.update({
     where: { id: params.id },
-    data: {
-      name,
-      description: description || null,
-      icon: icon || null,
-      url,
-    },
+    data: { name: name.trim() },
   });
 
-  revalidatePath("/links");
-  return NextResponse.json(link);
+  revalidatePath("/");
+  return NextResponse.json(category);
 }
 
 export async function PATCH(
@@ -51,13 +46,13 @@ export async function PATCH(
     return NextResponse.json({ error: "visible (boolean) requis" }, { status: 400 });
   }
 
-  const link = await prisma.link.update({
+  const category = await prisma.stackCategory.update({
     where: { id: params.id },
     data: { visible },
   });
 
-  revalidatePath("/links");
-  return NextResponse.json(link);
+  revalidatePath("/");
+  return NextResponse.json(category);
 }
 
 export async function DELETE(
@@ -69,8 +64,10 @@ export async function DELETE(
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  await prisma.link.delete({ where: { id: params.id } });
+  await prisma.stackCategory.delete({
+    where: { id: params.id },
+  });
 
-  revalidatePath("/links");
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }

@@ -16,11 +16,18 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const links = await prisma.link.findMany({
+  const categories = await prisma.stackCategory.findMany({
     where: all ? undefined : { visible: true },
     orderBy: { order: "asc" },
+    include: {
+      items: {
+        where: all ? undefined : { visible: true },
+        orderBy: { order: "asc" },
+      },
+    },
   });
-  return NextResponse.json(links);
+
+  return NextResponse.json(categories);
 }
 
 export async function POST(request: NextRequest) {
@@ -30,27 +37,24 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, description, icon, url } = body;
+  const { name } = body;
 
-  if (!name || !url) {
-    return NextResponse.json({ error: "Nom et URL requis" }, { status: 400 });
+  if (!name || typeof name !== "string") {
+    return NextResponse.json({ error: "Nom de categorie requis" }, { status: 400 });
   }
 
-  const maxOrder = await prisma.link.aggregate({ _max: { order: true } });
+  const maxOrder = await prisma.stackCategory.aggregate({ _max: { order: true } });
   const nextOrder = (maxOrder._max.order ?? -1) + 1;
 
-  const link = await prisma.link.create({
+  const category = await prisma.stackCategory.create({
     data: {
-      name,
-      description: description || null,
-      icon: icon || null,
-      url,
+      name: name.trim(),
       order: nextOrder,
     },
   });
 
-  revalidatePath("/links");
-  return NextResponse.json(link);
+  revalidatePath("/");
+  return NextResponse.json(category);
 }
 
 export async function PATCH(request: NextRequest) {
@@ -66,11 +70,11 @@ export async function PATCH(request: NextRequest) {
 
   await Promise.all(
     ids.map((id: string, index: number) =>
-      prisma.link.update({ where: { id }, data: { order: index } })
+      prisma.stackCategory.update({ where: { id }, data: { order: index } })
     )
   );
 
-  revalidatePath("/links");
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }
 
