@@ -41,3 +41,53 @@ export interface CvType {
   fileName: string;
   updatedAt: Date | string;
 }
+
+export interface HomeSectionSettingsType {
+  id: string;
+  key: string;
+  stacksVisible: boolean;
+  stacksTitle: string;
+  educationVisible: boolean;
+  educationTitle: string;
+  educationLeadVisible: boolean;
+  educationLeadTitle: string;
+  educationLeadSubtitle: string;
+  updatedAt: Date;
+}
+
+export interface StackCategoryType {
+  id: string;
+  name: string;
+  order: number;
+  visible: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface StackItemType {
+  id: string;
+  techId: string;
+  label: string;
+  categoryId: string;
+  order: number;
+  visible: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface StackCategoryWithItemsType extends StackCategoryType {
+  items: StackItemType[];
+}
+
+export interface EducationItemType {
+  id: string;
+  title: string;
+  school: string;
+  period: string;
+  statusLabel: string | null;
+  description: string | null;
+  order: number;
+  visible: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

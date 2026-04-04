@@ -7,3 +7,4 @@ export async function GET(request: NextRequest) {
   const target = new URL(`/CV${request.nextUrl.search}`, request.url);
   return NextResponse.redirect(target, 307);
 }
+
