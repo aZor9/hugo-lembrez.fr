@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
 import type { LinkType } from "@/types";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Liens | Hugo Lembrez",
+  description:
+    "Retrouvez tous les liens de Hugo Lembrez : réseaux, projets et contact.",
+  alternates: { canonical: "/links" },
+};
 
 export default async function LinksPage() {
   const [links, profile] = await Promise.all([

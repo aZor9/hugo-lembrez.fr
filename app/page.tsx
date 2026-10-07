@@ -9,8 +9,6 @@ import Footer from "@/components/Footer";
 import { getOrCreateHomeSectionSettings } from "@/lib/home-settings";
 import type { CvType } from "@/types";
 
-export const dynamic = "force-dynamic";
-
 export default async function HomePage() {
   const [profile, projects, rawCvs, stackCategories, educationItems, sectionSettings] = await Promise.all([
     prisma.profile.findFirst(),

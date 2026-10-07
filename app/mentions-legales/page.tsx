@@ -3,7 +3,9 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Mentions légales | Hugo Lembrez",
-  description: "Mentions légales du site hugo-lembrez.fr",
+  description:
+    "Mentions légales du site hugo-lembrez.fr : éditeur, hébergement, données personnelles et propriété intellectuelle.",
+  alternates: { canonical: "/mentions-legales" },
 };
 
 export default function MentionsLegalesPage() {

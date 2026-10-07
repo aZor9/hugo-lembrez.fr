@@ -109,6 +109,8 @@ export async function POST(request: NextRequest) {
 
     revalidatePath("/");
 
+    revalidatePath("/links");
+
     return NextResponse.json({ imageUrl });
   } catch (error) {
     console.error("Erreur upload image:", error);

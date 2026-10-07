@@ -23,7 +23,11 @@ export default function LoginForm() {
     });
 
     if (result?.error) {
-      setError("Email ou mot de passe incorrect");
+      setError(
+        result.error === "RateLimited"
+          ? "Trop de tentatives. Réessayez dans 15 minutes."
+          : "Email ou mot de passe incorrect"
+      );
       setLoading(false);
     } else {
       router.push("/admin");

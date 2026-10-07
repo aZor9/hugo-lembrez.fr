@@ -41,6 +41,8 @@ export async function PUT(request: NextRequest) {
 
   revalidatePath("/");
 
+  revalidatePath("/links");
+
   return NextResponse.json(profile);
 }
 

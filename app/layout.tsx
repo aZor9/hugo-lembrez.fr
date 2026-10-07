@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: "/" },
   title: "Hugo Lembrez | Développeur Full-Stack",
   description:
     "Portfolio de Hugo Lembrez — Développeur Full-Stack passionné par le web moderne, React, Next.js et TypeScript.",

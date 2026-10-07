@@ -7,41 +7,55 @@ Portfolio personnel & site web — Next.js 14 / TypeScript / Tailwind CSS / Pris
 ```
 ├── app/
 │   ├── layout.tsx              # Layout racine (SEO, providers, fond animé)
-│   ├── page.tsx                # Page publique (Hero, Projets, À propos)
+│   ├── page.tsx                # Page publique (Hero, CV, Formation, Projets, Stacks)
 │   ├── globals.css             # Styles globaux + utilitaires glassmorphism
+│   ├── sitemap.ts / robots.ts  # sitemap.xml et robots.txt générés
+│   ├── links/page.tsx          # Page "liens" (style link-in-bio)
+│   ├── mentions-legales/       # Mentions légales
+│   ├── not-found.tsx           # Page 404
 │   ├── login/page.tsx          # Page de connexion admin
-│   ├── admin/page.tsx          # Dashboard admin (CV, Profil, Projets)
+│   ├── admin/page.tsx          # Dashboard admin (CV, Profil, Projets, Liens, Stacks, Formation)
 │   ├── CV/route.ts             # Route publique du CV principal
 │   ├── CV-leger/route.ts       # Route publique du CV réduit
 │   └── api/
 │       ├── auth/[...nextauth]/ # Authentification NextAuth
 │       ├── cv/                 # Upload / lecture des CV (normal + réduit)
 │       ├── projects/           # CRUD projets
-│       └── profile/            # Mise à jour du profil
+│       ├── links/              # CRUD liens
+│       ├── stack-categories/   # CRUD catégories de stacks
+│       ├── stacks/             # CRUD technologies
+│       ├── education/          # CRUD formations
+│       ├── home-sections/      # Réglages d'affichage des sections de l'accueil
+│       └── profile/            # Mise à jour du profil (+ image)
 ├── components/
-│   ├── Navbar.tsx              # Navigation responsive
 │   ├── Hero.tsx                # Section hero avec avatar
+│   ├── CVDownload.tsx          # Consultation / téléchargement des CV
+│   ├── EducationSection.tsx    # Section formation
 │   ├── Projects.tsx            # Grille de projets
-│   ├── About.tsx               # Section à propos
+│   ├── TechStackSection.tsx    # Section stacks techniques
 │   ├── Footer.tsx              # Pied de page
 │   ├── GlassCard.tsx           # Composant carte glassmorphism
-│   ├── CVDownload.tsx          # Bouton de téléchargement du CV
+│   ├── Navbar.tsx              # Navigation (actuellement désactivée sur l'accueil)
 │   ├── LoginForm.tsx           # Formulaire de connexion
 │   ├── Providers.tsx           # SessionProvider NextAuth
-│   └── admin/
-│       ├── CVUpload.tsx        # Upload CV (PDF)
-│       ├── ProfileManager.tsx  # Édition du profil
-│       └── ProjectManager.tsx  # Gestion des projets (CRUD)
+│   └── admin/                  # Gestionnaires admin (CV, profil, projets, liens,
+│                               #   stacks, formation, recadrage d'image)
 ├── lib/
-│   ├── auth.ts                 # Configuration NextAuth
+│   ├── auth.ts                 # Configuration NextAuth (+ rate limiting du login)
+│   ├── rate-limit.ts           # Limiteur de tentatives en mémoire
 │   ├── cv.ts                   # Helpers CV (variants, noms, serving)
+│   ├── home-settings.ts        # Réglages des sections de l'accueil
+│   ├── site.ts                 # URL canonique du site
+│   ├── tech-icons.tsx          # Icônes des technologies
+│   ├── upload.ts               # Upload fichiers (Blob / filesystem)
 │   └── prisma.ts               # Client Prisma singleton
 ├── prisma/
 │   ├── schema.prisma           # Schéma de la base de données
 │   └── seed.ts                 # Seed admin + profil par défaut
 ├── types/
 │   └── index.ts                # Types TypeScript partagés
-├── middleware.ts                # Protection de /admin
+├── middleware.ts               # Protection de /admin
+├── next.config.js              # Images distantes + en-têtes de sécurité (CSP...)
 └── .env.example                # Variables d'environnement
 ```
 
@@ -77,6 +91,7 @@ Remplir le fichier `.env` :
 | `BLOB_READ_WRITE_TOKEN`| Token Vercel Blob (optionnel en dev local)     |
 | `ADMIN_EMAIL`          | Email du compte admin                          |
 | `ADMIN_PASSWORD`       | Mot de passe admin (sera hashé avec bcrypt)    |
+| `NEXT_PUBLIC_SITE_URL` | URL publique (sitemap, canonical). Défaut : `https://hugo-lembrez.fr` |
 
 ### 3. Initialiser la base de données
 
@@ -147,14 +162,18 @@ npm run db:seed
 ## Fonctionnalités
 
 - **Authentification sécurisée** : NextAuth + JWT + bcrypt
-- **Dashboard admin mobile-friendly** : gestion du CV, profil et projets
+- **Dashboard admin mobile-friendly** : gestion du CV, profil, projets, liens, stacks et formation
+- **Sections configurables** : affichage et titres des sections Formation / Stacks réglables depuis l'admin
+- **Page `/links`** : liens publics façon link-in-bio
 - **Upload PDF** : Vercel Blob (prod) / filesystem (dev)
 - **Double modèle de CV** : un CV `normal` + un CV `reduit` (fallback)
 - **Routes publiques dédiées** : `/CV` (principal) et `/CV-leger` (fallback)
 - **UI glassmorphism** : cartes translucides, dégradés, animations
-- **SEO** : métadonnées Open Graph, balises HTML sémantiques
+- **SEO** : métadonnées Open Graph, `sitemap.xml`, `robots.txt`, URLs canoniques
+- **Sécurité** : en-têtes HTTP (CSP, HSTS, X-Frame-Options...), rate limiting du login (5 échecs / 15 min par IP et par email)
 - **Responsive** : mobile-first design
 - **API sécurisées** : vérification de session sur toutes les mutations
+- **Pages légales et 404** : `/mentions-legales` et page introuvable personnalisée
 
 ## Gestion des CV (normal / réduit)
 
@@ -206,4 +225,5 @@ Si Windows bloque le fichier moteur Prisma (`EPERM`), ferme les process `next de
 | NextAuth       | Authentification               |
 | bcryptjs       | Hachage de mot de passe        |
 | @vercel/blob   | Stockage de fichiers           |
-| Framer Motion  | Animations (optionnel)         |
+| Framer Motion  | Animations                     |
+| Vercel Analytics / Speed Insights | Mesure d'audience et performances (dépendances installées) |

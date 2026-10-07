@@ -3,6 +3,14 @@ import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
+import {
+  LOGIN_MAX_ATTEMPTS,
+  LOGIN_WINDOW_MS,
+  getClientIp,
+  isRateLimited,
+  recordFailure,
+  resetAttempts,
+} from "./rate-limit";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,21 +20,35 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Mot de passe", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) return null;
+
+        const email = credentials.email.toLowerCase();
+        const ipKey = `login:ip:${getClientIp(req?.headers)}`;
+        const emailKey = `login:email:${email}`;
+
+        if (
+          isRateLimited(ipKey, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_MS) ||
+          isRateLimited(emailKey, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_MS)
+        ) {
+          throw new Error("RateLimited");
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user) return null;
+        const isValid = user
+          ? await bcrypt.compare(credentials.password, user.password)
+          : false;
 
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-        if (!isValid) return null;
+        if (!user || !isValid) {
+          recordFailure(ipKey, LOGIN_WINDOW_MS);
+          recordFailure(emailKey, LOGIN_WINDOW_MS);
+          return null;
+        }
 
+        resetAttempts(emailKey);
         return { id: user.id, email: user.email };
       },
     }),
