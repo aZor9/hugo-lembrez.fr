@@ -44,9 +44,21 @@ export default function StackManager() {
     categoryId: "",
   });
 
+  const [techSearch, setTechSearch] = useState("");
+
   useEffect(() => {
     fetchAll();
   }, []);
+
+  const filteredTechs = useMemo(() => {
+    const q = techSearch.trim().toLowerCase();
+    if (!q) return TECH_LIST;
+    return TECH_LIST.filter(
+      (t) => t.label.toLowerCase().includes(q) || t.id.includes(q)
+    );
+  }, [techSearch]);
+
+  const selectedTech = getTechById(itemForm.techId);
 
   const sortedCategories = useMemo(
     () => [...categories].sort((a, b) => a.order - b.order),
@@ -393,14 +405,23 @@ export default function StackManager() {
           </div>
 
           <form onSubmit={submitCategory} className="space-y-3 border-t border-white/10 pt-4">
-            <input
-              type="text"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="Nom du domaine (ex: Frameworks)"
-              className="input-glass"
-              required
-            />
+            <div>
+              <label htmlFor="category-name" className="block text-xs text-gray-400 mb-1">
+                Nom de la catégorie
+              </label>
+              <input
+                id="category-name"
+                type="text"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                placeholder="Ex : Frameworks"
+                className="input-glass"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Titre du groupe affiché sur le site, qui regroupe plusieurs technologies.
+              </p>
+            </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
                 {editingCategory ? "Mettre à jour" : "Ajouter catégorie"}
@@ -504,48 +525,105 @@ export default function StackManager() {
           </div>
 
           <form onSubmit={submitItem} className="space-y-3 border-t border-white/10 pt-4">
-            <select
-              className="select-glass"
-              value={itemForm.categoryId}
-              onChange={(e) => setItemForm((prev) => ({ ...prev, categoryId: e.target.value }))}
-              required
-            >
-              <option value="">Sélectionner une catégorie</option>
-              {sortedCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label htmlFor="item-category" className="block text-xs text-gray-400 mb-1">
+                Catégorie
+              </label>
+              <select
+                id="item-category"
+                className="select-glass"
+                value={itemForm.categoryId}
+                onChange={(e) => setItemForm((prev) => ({ ...prev, categoryId: e.target.value }))}
+                required
+              >
+                <option value="">Sélectionner une catégorie</option>
+                {sortedCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Le groupe dans lequel la technologie apparaîtra.
+              </p>
+            </div>
 
-            <select
-              className="select-glass"
-              value={itemForm.techId}
-              onChange={(e) => {
-                const tech = getTechById(e.target.value);
-                setItemForm((prev) => ({
-                  ...prev,
-                  techId: e.target.value,
-                  label: tech?.label ?? prev.label,
-                }));
-              }}
-              required
-            >
-              {TECH_LIST.map((tech) => (
-                <option key={tech.id} value={tech.id}>
-                  {tech.label}
-                </option>
-              ))}
-            </select>
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <label htmlFor="tech-search" className="block text-xs text-gray-400">
+                  Technologie (logo)
+                </label>
+                {selectedTech && (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-gray-200">
+                    <span className="w-4 h-4" style={{ color: selectedTech.color }}>
+                      {selectedTech.icon}
+                    </span>
+                    {selectedTech.label}
+                  </span>
+                )}
+              </div>
+              <input
+                id="tech-search"
+                type="search"
+                value={techSearch}
+                onChange={(e) => setTechSearch(e.target.value)}
+                placeholder="Rechercher une technologie…"
+                className="input-glass mb-2"
+              />
+              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+                {filteredTechs.length === 0 && (
+                  <p className="text-xs text-gray-500">Aucune technologie trouvée.</p>
+                )}
+                {filteredTechs.map((tech) => {
+                  const active = itemForm.techId === tech.id;
+                  return (
+                    <button
+                      key={tech.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() =>
+                        setItemForm((prev) => ({
+                          ...prev,
+                          techId: tech.id,
+                          label: tech.label,
+                        }))
+                      }
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                        active
+                          ? "border-white/30 bg-white/10 text-white"
+                          : "border-white/5 bg-white/[0.02] text-gray-400 hover:bg-white/5 hover:text-gray-200"
+                      }`}
+                    >
+                      <span className="w-3.5 h-3.5 shrink-0" style={{ color: tech.color }}>
+                        {tech.icon}
+                      </span>
+                      {tech.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Choisit le logo affiché à côté du nom.
+              </p>
+            </div>
 
-            <input
-              type="text"
-              value={itemForm.label}
-              onChange={(e) => setItemForm((prev) => ({ ...prev, label: e.target.value }))}
-              placeholder="Label affiché"
-              className="input-glass"
-              required
-            />
+            <div>
+              <label htmlFor="item-label" className="block text-xs text-gray-400 mb-1">
+                Nom affiché
+              </label>
+              <input
+                id="item-label"
+                type="text"
+                value={itemForm.label}
+                onChange={(e) => setItemForm((prev) => ({ ...prev, label: e.target.value }))}
+                placeholder="Ex : Next.js"
+                className="input-glass"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Texte montré sur le site.
+              </p>
+            </div>
 
             <div className="flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
