@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import CVUpload from "@/components/admin/CVUpload";
@@ -19,6 +19,12 @@ export default function AdminPage() {
     "cv"
   );
 
+  const unauthenticated = status === "unauthenticated" || (status !== "loading" && !session);
+
+  useEffect(() => {
+    if (unauthenticated) router.push("/login");
+  }, [unauthenticated, router]);
+
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -27,10 +33,7 @@ export default function AdminPage() {
     );
   }
 
-  if (status === "unauthenticated" || !session) {
-    router.push("/login");
-    return null;
-  }
+  if (unauthenticated) return null;
 
   const tabs = [
     { id: "cv" as const, label: "📄 CV", icon: "CV" },
@@ -42,23 +45,23 @@ export default function AdminPage() {
   ];
 
   return (
-    <main className="min-h-screen px-4 py-8">
+    <main id="main-content" tabIndex={-1} className="min-h-screen px-4 pt-6 pb-[max(2rem,env(safe-area-inset-bottom))] sm:py-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
             Dashboard
           </h1>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <a
               href="/"
-              className="text-sm text-gray-400 hover:text-white transition-colors sm:block"
+              className="text-sm text-gray-400 hover:text-white transition-colors py-2"
             >
               Voir le site
             </a>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="text-sm text-gray-400 hover:text-red-400 transition-colors"
+              className="text-sm text-gray-400 hover:text-red-400 transition-colors py-2"
             >
               Déconnexion
             </button>
@@ -66,12 +69,18 @@ export default function AdminPage() {
         </div>
 
         {/* Onglets */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div
+          role="tablist"
+          aria-label="Sections de l'administration"
+          className="sticky top-0 z-20 -mx-4 px-4 py-2 mb-6 sm:mb-8 flex gap-2 overflow-x-auto bg-slate-950/90 backdrop-blur sm:static sm:mx-0 sm:px-0 sm:bg-transparent sm:backdrop-blur-none"
+        >
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+              className={`px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
                 activeTab === tab.id
                   ? "bg-indigo-500/20 border border-indigo-500/30 text-indigo-300"
                   : "glass glass-hover text-gray-400"
@@ -83,7 +92,7 @@ export default function AdminPage() {
         </div>
 
         {/* Contenu */}
-        <div className="glass p-4 sm:p-6">
+        <div role="tabpanel" className="glass p-4 sm:p-6">
           {activeTab === "cv" && <CVUpload />}
           {activeTab === "profile" && <ProfileManager />}
           {activeTab === "projects" && <ProjectManager />}

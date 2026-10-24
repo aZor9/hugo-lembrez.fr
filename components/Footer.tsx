@@ -7,9 +7,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           {/* Contact */}
           <div>
-            <h3 className="text-lg font-semibold gradient-text mb-4">
+            <h2 className="text-lg font-semibold gradient-text mb-4">
               Contact
-            </h3>
+            </h2>
             <div className="space-y-2 text-gray-400 text-sm">
               <p>
                 <a
@@ -24,7 +24,7 @@ export default function Footer() {
 
           {/* Liens */}
           <div>
-            <h3 className="text-lg font-semibold gradient-text mb-4">Liens</h3>
+            <h2 className="text-lg font-semibold gradient-text mb-4">Liens</h2>
             <div className="space-y-2 text-gray-400 text-sm">
               <p>
                 <a href="/links" className="hover:text-white transition-colors">
@@ -38,7 +38,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
-                  GitHub
+                  GitHub<span className="sr-only"> (nouvelle fenêtre)</span>
                 </a>
               </p>
               <p>
@@ -48,7 +48,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
-                  LinkedIn
+                  LinkedIn<span className="sr-only"> (nouvelle fenêtre)</span>
                 </a>
               </p>
             </div>
@@ -56,26 +56,34 @@ export default function Footer() {
 
           {/* Mentions légales */}
           <div>
-            <h3 className="text-lg font-semibold gradient-text mb-4">
+            <h2 className="text-lg font-semibold gradient-text mb-4">
               Mentions légales
-            </h3>
+            </h2>
             <div className="space-y-2 text-sm">
               <p>
                 <a
                   href="/mentions-legales"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Consulter les mentions légales
+                  Mentions légales et confidentialité
                 </a>
               </p>
-              <p className="text-gray-500">© {year} Hugo Lembrez. Tous droits réservés.</p>
+              <p>
+                <a
+                  href="/accessibilite"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  Accessibilité : non conforme RGAA (audit en cours)
+                </a>
+              </p>
+              <p className="text-gray-400">© {year} Hugo Lembrez. Tous droits réservés.</p>
             </div>
           </div>
         </div>
 
         {/* Signature */}
         <div className="mt-12 pt-6 border-t border-white/5 text-center">
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-400 text-xs">
             Construit avec Next.js, Tailwind CSS & Prisma
           </p>
         </div>

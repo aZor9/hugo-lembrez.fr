@@ -166,7 +166,7 @@ export default function ProfileManager() {
                 Upload en cours...
               </div>
             )}
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               L&apos;image sera automatiquement recadrée en carré (512×512px)
             </p>
           </div>
@@ -228,7 +228,7 @@ export default function ProfileManager() {
         </button>
 
         {message && (
-          <p
+          <p role="status"
             className={`text-sm ${
               message.includes("mis à jour")
                 ? "text-green-400"

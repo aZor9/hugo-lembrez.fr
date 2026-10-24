@@ -194,7 +194,7 @@ export default function ImageCropper({ file, onCrop, onCancel }: ImageCropperPro
         >
           −
         </button>
-        <span className="text-xs text-gray-500 w-20 text-center">Taille</span>
+        <span className="text-xs text-gray-400 w-20 text-center">Taille</span>
         <button
           type="button"
           onClick={() => handleSizeChange(30)}

@@ -192,14 +192,14 @@ export default function EducationManager() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm text-gray-200">Afficher la section sur le site</p>
-              <p className="text-xs text-gray-500">Sous les stacks techniques</p>
+              <p className="text-xs text-gray-400">Sous les stacks techniques</p>
             </div>
             <button
               onClick={() => saveSettings({ educationVisible: !settings.educationVisible })}
-              className={`px-3 py-1.5 text-xs rounded-lg ${
+              className={`px-3 py-2.5 sm:py-1.5 text-xs rounded-lg ${
                 settings.educationVisible
                   ? "bg-emerald-500/20 text-emerald-300"
-                  : "bg-white/5 text-gray-500"
+                  : "bg-white/5 text-gray-400"
               }`}
             >
               {settings.educationVisible ? "Visible" : "Masquée"}
@@ -213,6 +213,7 @@ export default function EducationManager() {
               onChange={(e) =>
                 setSettings((prev) => ({ ...prev, educationTitle: e.target.value }))
               }
+              aria-label="Titre de section"
               placeholder="Titre de section"
               className="input-glass"
             />
@@ -229,10 +230,10 @@ export default function EducationManager() {
               <p className="text-sm text-gray-200">Afficher la carte d'introduction</p>
               <button
                 onClick={() => saveSettings({ educationLeadVisible: !settings.educationLeadVisible })}
-                className={`px-3 py-1.5 text-xs rounded-lg ${
+                className={`px-3 py-2.5 sm:py-1.5 text-xs rounded-lg ${
                   settings.educationLeadVisible
                     ? "bg-emerald-500/20 text-emerald-300"
-                    : "bg-white/5 text-gray-500"
+                    : "bg-white/5 text-gray-400"
                 }`}
               >
                 {settings.educationLeadVisible ? "Visible" : "Masquée"}
@@ -245,6 +246,7 @@ export default function EducationManager() {
               onChange={(e) =>
                 setSettings((prev) => ({ ...prev, educationLeadTitle: e.target.value }))
               }
+              aria-label="Texte principal de la carte"
               placeholder="Texte principal de la carte"
               className="input-glass"
             />
@@ -254,6 +256,7 @@ export default function EducationManager() {
               onChange={(e) =>
                 setSettings((prev) => ({ ...prev, educationLeadSubtitle: e.target.value }))
               }
+              aria-label="Texte secondaire de la carte"
               placeholder="Texte secondaire de la carte"
               className="input-glass"
             />
@@ -281,7 +284,7 @@ export default function EducationManager() {
                   <button
                     onClick={() => moveItem(index, "up")}
                     disabled={index === 0}
-                    className="w-6 h-6 rounded bg-white/5 disabled:opacity-20"
+                    className="w-10 h-10 sm:w-6 sm:h-6 rounded bg-white/5 disabled:opacity-20"
                     title="Monter"
                   >
                     ↑
@@ -289,7 +292,7 @@ export default function EducationManager() {
                   <button
                     onClick={() => moveItem(index, "down")}
                     disabled={index === orderedItems.length - 1}
-                    className="w-6 h-6 rounded bg-white/5 disabled:opacity-20"
+                    className="w-10 h-10 sm:w-6 sm:h-6 rounded bg-white/5 disabled:opacity-20"
                     title="Descendre"
                   >
                     ↓
@@ -298,30 +301,30 @@ export default function EducationManager() {
                 <div className="min-w-0">
                   <h3 className="text-white font-medium truncate">{item.title}</h3>
                   <p className="text-sm text-gray-400 truncate">{item.school}</p>
-                  <p className="text-xs text-gray-500">{item.period}</p>
+                  <p className="text-xs text-gray-400">{item.period}</p>
                 </div>
               </div>
 
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={() => toggleVisible(item)}
-                  className={`px-3 py-1.5 text-xs rounded-lg ${
+                  className={`px-3 py-2.5 sm:py-1.5 text-xs rounded-lg ${
                     item.visible
                       ? "bg-emerald-500/20 text-emerald-300"
-                      : "bg-white/5 text-gray-500"
+                      : "bg-white/5 text-gray-400"
                   }`}
                 >
                   {item.visible ? "Visible" : "Masquée"}
                 </button>
                 <button
                   onClick={() => editItem(item)}
-                  className="px-3 py-1.5 text-xs rounded-lg bg-indigo-500/20 text-indigo-300"
+                  className="px-3 py-2.5 sm:py-1.5 text-xs rounded-lg bg-indigo-500/20 text-indigo-300"
                 >
                   Modifier
                 </button>
                 <button
                   onClick={() => deleteItem(item.id)}
-                  className="px-3 py-1.5 text-xs rounded-lg bg-red-500/20 text-red-300"
+                  className="px-3 py-2.5 sm:py-1.5 text-xs rounded-lg bg-red-500/20 text-red-300"
                 >
                   Supprimer
                 </button>
@@ -331,7 +334,7 @@ export default function EducationManager() {
         ))}
 
         {orderedItems.length === 0 && (
-          <p className="text-sm text-gray-500">Aucune formation pour le moment.</p>
+          <p className="text-sm text-gray-400">Aucune formation pour le moment.</p>
         )}
       </div>
 
@@ -345,6 +348,7 @@ export default function EducationManager() {
             type="text"
             value={form.title}
             onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+            aria-label="Intitulé (ex: BIA)"
             placeholder="Intitulé (ex: BIA)"
             className="input-glass"
             required
@@ -354,6 +358,7 @@ export default function EducationManager() {
             type="text"
             value={form.school}
             onChange={(e) => setForm((prev) => ({ ...prev, school: e.target.value }))}
+            aria-label="Établissement (ex: Lycée Clémenceau, Montpellier)"
             placeholder="Établissement (ex: Lycée Clémenceau, Montpellier)"
             className="input-glass"
             required
@@ -363,6 +368,7 @@ export default function EducationManager() {
             type="text"
             value={form.period}
             onChange={(e) => setForm((prev) => ({ ...prev, period: e.target.value }))}
+            aria-label="Période (ex: 2023 - 2025)"
             placeholder="Période (ex: 2023 - 2025)"
             className="input-glass"
             required
@@ -372,6 +378,7 @@ export default function EducationManager() {
             type="text"
             value={form.statusLabel}
             onChange={(e) => setForm((prev) => ({ ...prev, statusLabel: e.target.value }))}
+            aria-label="Statut (ex: Obtenu)"
             placeholder="Statut (ex: Obtenu)"
             className="input-glass"
           />
@@ -379,6 +386,7 @@ export default function EducationManager() {
           <textarea
             value={form.description}
             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+            aria-label="Description optionnelle"
             placeholder="Description optionnelle"
             className="input-glass resize-none"
             rows={3}
@@ -406,7 +414,7 @@ export default function EducationManager() {
       </div>
 
       {message && (
-        <p className={`text-sm ${message.includes("Erreur") ? "text-red-400" : "text-green-400"}`}>
+        <p role="status" className={`text-sm ${message.includes("Erreur") ? "text-red-400" : "text-green-400"}`}>
           {message}
         </p>
       )}

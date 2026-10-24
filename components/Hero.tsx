@@ -53,7 +53,7 @@ export default function Hero({ profile, cv }: HeroProps) {
           {profile?.title || "Développeur Full-Stack"}
         </p>
 
-        <p className="text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed whitespace-pre-line">
+        <p className="text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed whitespace-pre-line">
           {profile?.bio ||
             "Passionné par le développement web moderne et les technologies innovantes."}
         </p>
@@ -70,10 +70,10 @@ export default function Hero({ profile, cv }: HeroProps) {
         <div className="mt-12 flex justify-center">
           <a
             href="#cv-preview"
-            className="text-gray-500 hover:text-gray-300 transition-colors animate-bounce"
+            className="text-gray-400 hover:text-gray-300 transition-colors animate-bounce"
             aria-label="Défiler vers le bas"
           >
-            <svg
+            <svg aria-hidden="true"
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"

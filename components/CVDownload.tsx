@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CvType } from "@/types";
 
 interface CVDownloadProps {
@@ -59,7 +59,7 @@ export default function CVDownload({
           download={normalCv.fileName}
           className="btn-primary inline-flex items-center gap-2"
         >
-          <svg
+          <svg aria-hidden="true"
             className="w-5 h-5"
             fill="none"
             stroke="currentColor"
@@ -94,7 +94,7 @@ export default function CVDownload({
           <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">
             <span className="gradient-text">Mon CV</span>
           </h2>
-          <p className="text-center text-sm text-gray-500 mb-8">
+          <p className="text-center text-sm text-gray-400 mb-8">
             Mis à jour le {formattedDate}
           </p>
 
@@ -110,7 +110,7 @@ export default function CVDownload({
                 aria-label="Aperçu du CV"
               >
                 <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center bg-slate-900">
-                  <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <p className="text-gray-400 text-sm max-w-xs">
@@ -122,10 +122,10 @@ export default function CVDownload({
                     rel="noopener noreferrer"
                     className="btn-secondary inline-flex items-center gap-2"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
-                    Ouvrir le CV
+                    Ouvrir le CV<span className="sr-only"> (nouvelle fenêtre)</span>
                   </a>
                 </div>
               </object>
@@ -139,10 +139,10 @@ export default function CVDownload({
               rel="noopener noreferrer"
               className="btn-secondary inline-flex items-center gap-2 text-sm"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-              Ouvrir dans un nouvel onglet
+              Ouvrir dans un nouvel onglet<span className="sr-only"> (nouvelle fenêtre)</span>
             </a>
 
             <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export default function CVDownload({
                 download={normalCv.fileName}
                 className="btn-primary inline-flex items-center gap-2 text-sm"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg aria-hidden="true" className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Télécharger
@@ -187,18 +187,64 @@ function ReducedCvModal({
   reducedDownloadUrl,
   onClose,
 }: ReducedCvModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const dialog = dialogRef.current;
+    const focusables = () =>
+      Array.from(
+        dialog?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? []
+      );
+    focusables()[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onCloseRef.current();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previous?.focus();
+    };
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <button
         type="button"
         aria-label="Fermer la fenêtre"
+        tabIndex={-1}
         className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900/95 p-6 shadow-2xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reduced-cv-title"
+        className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-slate-900/95 p-6 shadow-2xl"
+      >
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Version réduite du CV</h3>
+          <h3 id="reduced-cv-title" className="text-xl font-semibold text-white">Version réduite du CV</h3>
           <p className="text-sm leading-relaxed text-gray-300">
             Si le CV téléchargé présente un bug d&apos;affichage ou que certaines images ne se chargent pas,
             une version réduite est disponible. Cette version est aplatie, donc certains liens interactifs
@@ -213,7 +259,7 @@ function ReducedCvModal({
                 rel="noopener noreferrer"
                 className="btn-secondary inline-flex items-center justify-center"
               >
-                Visualiser le modèle réduit
+                Visualiser le modèle réduit<span className="sr-only"> (nouvelle fenêtre)</span>
               </a>
               <a
                 href={reducedDownloadUrl}

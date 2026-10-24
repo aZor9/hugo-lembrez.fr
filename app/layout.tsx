@@ -45,6 +45,12 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-slate-950 text-white antialiased`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-slate-900"
+        >
+          Aller au contenu principal
+        </a>
         <Providers>
           {/* Orbes animées en arrière-plan */}
           <div className="fixed inset-0 -z-10 overflow-hidden">

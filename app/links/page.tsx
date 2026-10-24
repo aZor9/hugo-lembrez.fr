@@ -19,7 +19,7 @@ export default async function LinksPage() {
   ]);
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
+    <main id="main-content" tabIndex={-1} className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <div className="w-full max-w-md space-y-4">
         
         {/* En-tête */}
@@ -36,7 +36,7 @@ export default async function LinksPage() {
 
         {/* Liens */}
         {links.length === 0 ? (
-          <p className="text-center text-gray-500 text-sm">Aucun lien disponible.</p>
+          <p className="text-center text-gray-400 text-sm">Aucun lien disponible.</p>
         ) : (
           links.map((link) => (
             <a
@@ -47,18 +47,19 @@ export default async function LinksPage() {
               className="group flex items-center gap-4 w-full px-5 py-4 glass glass-hover rounded-2xl transition-all hover:scale-[1.02]"
             >
               {link.icon && (
-                <span className="text-2xl shrink-0">{link.icon}</span>
+                <span className="text-2xl shrink-0" aria-hidden="true">{link.icon}</span>
               )}
               <div className="flex-grow min-w-0">
                 <p className="font-semibold text-white group-hover:gradient-text transition-all">
                   {link.name}
+                  <span className="sr-only"> (nouvelle fenêtre)</span>
                 </p>
                 {link.description && (
                   <p className="text-sm text-gray-400 truncate">{link.description}</p>
                 )}
               </div>
-              <svg
-                className="w-4 h-4 text-gray-500 group-hover:text-white shrink-0 transition-colors"
+              <svg aria-hidden="true"
+                className="w-4 h-4 text-gray-400 group-hover:text-white shrink-0 transition-colors"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -75,7 +76,7 @@ export default async function LinksPage() {
         )}
 
         {/* Footer minimal */}
-        <p className="text-center text-gray-600 text-xs pt-8">
+        <p className="text-center text-gray-400 text-xs pt-8">
           <a href="/" >© {new Date().getFullYear()} Hugo Lembrez </a>
         </p>
       </div>

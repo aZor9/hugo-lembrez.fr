@@ -309,15 +309,15 @@ export default function StackManager() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm text-gray-200">Afficher la section sur le site</p>
-              <p className="text-xs text-gray-500">Sous la section projets</p>
+              <p className="text-xs text-gray-400">Sous la section projets</p>
             </div>
             <button
               onClick={() => saveSettings({ stacksVisible: !settings.stacksVisible })}
               disabled={saving}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-all ${
+              className={`px-3 py-2.5 sm:py-1.5 text-xs rounded-lg transition-all ${
                 settings.stacksVisible
                   ? "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30"
-                  : "bg-white/5 text-gray-500 hover:bg-white/10"
+                  : "bg-white/5 text-gray-400 hover:bg-white/10"
               }`}
             >
               {settings.stacksVisible ? "Visible" : "Masquée"}
@@ -352,13 +352,13 @@ export default function StackManager() {
           <div className="space-y-2">
             {sortedCategories.map((category, index) => (
               <div key={category.id} className="bg-white/5 rounded-xl p-3">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className="flex flex-col gap-0.5 shrink-0">
                       <button
                         onClick={() => moveCategory(index, "up")}
                         disabled={index === 0}
-                        className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 disabled:opacity-20"
+                        className="w-10 h-10 sm:w-6 sm:h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 disabled:opacity-20"
                         title="Monter"
                       >
                         ↑
@@ -366,7 +366,7 @@ export default function StackManager() {
                       <button
                         onClick={() => moveCategory(index, "down")}
                         disabled={index === sortedCategories.length - 1}
-                        className="w-6 h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 disabled:opacity-20"
+                        className="w-10 h-10 sm:w-6 sm:h-6 flex items-center justify-center rounded bg-white/5 hover:bg-white/10 disabled:opacity-20"
                         title="Descendre"
                       >
                         ↓
@@ -375,26 +375,26 @@ export default function StackManager() {
                     <p className="text-sm text-white truncate">{category.name}</p>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       onClick={() => toggleCategoryVisible(category)}
-                      className={`px-2 py-1 text-xs rounded ${
+                      className={`px-3 py-2.5 sm:px-2 sm:py-1 text-xs rounded ${
                         category.visible
                           ? "bg-emerald-500/20 text-emerald-300"
-                          : "bg-white/5 text-gray-500"
+                          : "bg-white/5 text-gray-400"
                       }`}
                     >
                       {category.visible ? "Visible" : "Masquée"}
                     </button>
                     <button
                       onClick={() => editCategory(category)}
-                      className="px-2 py-1 text-xs rounded bg-indigo-500/20 text-indigo-300"
+                      className="px-3 py-2.5 sm:px-2 sm:py-1 text-xs rounded bg-indigo-500/20 text-indigo-300"
                     >
                       Modifier
                     </button>
                     <button
                       onClick={() => deleteCategory(category.id)}
-                      className="px-2 py-1 text-xs rounded bg-red-500/20 text-red-300"
+                      className="px-3 py-2.5 sm:px-2 sm:py-1 text-xs rounded bg-red-500/20 text-red-300"
                     >
                       Supprimer
                     </button>
@@ -418,7 +418,7 @@ export default function StackManager() {
                 className="input-glass"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Titre du groupe affiché sur le site, qui regroupe plusieurs technologies.
               </p>
             </div>
@@ -445,7 +445,7 @@ export default function StackManager() {
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-gray-300">Éléments de stack</h3>
 
-          <div className="space-y-4 max-h-[520px] overflow-y-auto pr-1">
+          <div className="space-y-4 lg:max-h-[520px] lg:overflow-y-auto lg:pr-1">
             {sortedCategories.map((category) => {
               const sortedItems = [...category.items].sort((a, b) => a.order - b.order);
               return (
@@ -453,14 +453,14 @@ export default function StackManager() {
                   <p className="text-sm text-gray-200 mb-2">{category.name}</p>
                   <div className="space-y-2">
                     {sortedItems.length === 0 && (
-                      <p className="text-xs text-gray-500">Aucun élément.</p>
+                      <p className="text-xs text-gray-400">Aucun élément.</p>
                     )}
                     {sortedItems.map((item, index) => {
                       const tech = getTechById(item.techId);
                       return (
                         <div
                           key={item.id}
-                          className={`flex items-center justify-between gap-2 bg-white/5 rounded-lg px-2 py-2 ${
+                          className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/5 rounded-lg px-2 py-2 ${
                             !item.visible ? "opacity-50" : ""
                           }`}
                         >
@@ -469,7 +469,7 @@ export default function StackManager() {
                               <button
                                 onClick={() => moveItem(category.id, index, "up")}
                                 disabled={index === 0}
-                                className="w-5 h-5 rounded bg-white/5 disabled:opacity-20"
+                                className="w-10 h-10 sm:w-5 sm:h-5 rounded bg-white/5 disabled:opacity-20"
                                 title="Monter"
                               >
                                 ↑
@@ -477,7 +477,7 @@ export default function StackManager() {
                               <button
                                 onClick={() => moveItem(category.id, index, "down")}
                                 disabled={index === sortedItems.length - 1}
-                                className="w-5 h-5 rounded bg-white/5 disabled:opacity-20"
+                                className="w-10 h-10 sm:w-5 sm:h-5 rounded bg-white/5 disabled:opacity-20"
                                 title="Descendre"
                               >
                                 ↓
@@ -491,26 +491,26 @@ export default function StackManager() {
                             <p className="text-xs text-gray-200 truncate">{item.label}</p>
                           </div>
 
-                          <div className="flex gap-1">
+                          <div className="flex flex-wrap gap-1.5">
                             <button
                               onClick={() => toggleItemVisible(item)}
-                              className={`px-2 py-1 text-[11px] rounded ${
+                              className={`px-3 py-2.5 sm:px-2 sm:py-1 text-xs sm:text-xs rounded ${
                                 item.visible
                                   ? "bg-emerald-500/20 text-emerald-300"
-                                  : "bg-white/5 text-gray-500"
+                                  : "bg-white/5 text-gray-400"
                               }`}
                             >
                               {item.visible ? "Visible" : "Masqué"}
                             </button>
                             <button
                               onClick={() => editItem(item)}
-                              className="px-2 py-1 text-[11px] rounded bg-indigo-500/20 text-indigo-300"
+                              className="px-3 py-2.5 sm:px-2 sm:py-1 text-xs sm:text-xs rounded bg-indigo-500/20 text-indigo-300"
                             >
                               Modifier
                             </button>
                             <button
                               onClick={() => deleteItem(item.id)}
-                              className="px-2 py-1 text-[11px] rounded bg-red-500/20 text-red-300"
+                              className="px-3 py-2.5 sm:px-2 sm:py-1 text-xs sm:text-xs rounded bg-red-500/20 text-red-300"
                             >
                               Supprimer
                             </button>
@@ -543,7 +543,7 @@ export default function StackManager() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Le groupe dans lequel la technologie apparaîtra.
               </p>
             </div>
@@ -570,9 +570,9 @@ export default function StackManager() {
                 placeholder="Rechercher une technologie…"
                 className="input-glass mb-2"
               />
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+              <div className="flex flex-wrap gap-2 max-h-56 overflow-y-auto pr-1">
                 {filteredTechs.length === 0 && (
-                  <p className="text-xs text-gray-500">Aucune technologie trouvée.</p>
+                  <p className="text-xs text-gray-400">Aucune technologie trouvée.</p>
                 )}
                 {filteredTechs.map((tech) => {
                   const active = itemForm.techId === tech.id;
@@ -588,7 +588,7 @@ export default function StackManager() {
                           label: tech.label,
                         }))
                       }
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-medium transition-all border ${
                         active
                           ? "border-white/30 bg-white/10 text-white"
                           : "border-white/5 bg-white/[0.02] text-gray-400 hover:bg-white/5 hover:text-gray-200"
@@ -602,7 +602,7 @@ export default function StackManager() {
                   );
                 })}
               </div>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Choisit le logo affiché à côté du nom.
               </p>
             </div>
@@ -620,7 +620,7 @@ export default function StackManager() {
                 className="input-glass"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Texte montré sur le site.
               </p>
             </div>
@@ -650,7 +650,7 @@ export default function StackManager() {
       </div>
 
       {message && (
-        <p className={`text-sm ${message.includes("Erreur") ? "text-red-400" : "text-green-400"}`}>
+        <p role="status" className={`text-sm ${message.includes("Erreur") ? "text-red-400" : "text-green-400"}`}>
           {message}
         </p>
       )}

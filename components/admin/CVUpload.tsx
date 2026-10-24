@@ -200,17 +200,17 @@ export default function CVUpload() {
               {cv ? (
                 <div className="rounded-xl border border-white/10 bg-slate-950/30 p-3">
                   <p className="truncate text-sm font-medium text-gray-200">{cv.fileName}</p>
-                  <p className="mt-1 text-xs text-gray-500">Dernière mise à jour : {formattedDate}</p>
+                  <p className="mt-1 text-xs text-gray-400">Dernière mise à jour : {formattedDate}</p>
                 </div>
               ) : (
-                <p className="rounded-xl border border-dashed border-white/10 bg-slate-950/20 px-3 py-4 text-sm text-gray-500">
+                <p className="rounded-xl border border-dashed border-white/10 bg-slate-950/20 px-3 py-4 text-sm text-gray-400">
                   Aucun fichier n&apos;est encore uploadé pour cette version.
                 </p>
               )}
 
               {cv && (
                 <div className="border-t border-white/5 pt-2">
-                  <label className="mb-1.5 block text-xs text-gray-500">Nom du fichier au téléchargement</label>
+                  <label className="mb-1.5 block text-xs text-gray-400">Nom du fichier au téléchargement</label>
                   <div className="flex gap-2">
                     <div className="flex flex-1 items-center gap-0">
                       <input
@@ -225,7 +225,7 @@ export default function CVUpload() {
                         className="input-glass flex-1 text-sm !rounded-r-none"
                         placeholder={entry.variant === "reduit" ? "Mon CV leger" : "Mon CV"}
                       />
-                      <span className="rounded-r-xl border border-l-0 border-white/10 bg-white/5 px-3 py-2.5 text-sm text-gray-500">
+                      <span className="rounded-r-xl border border-l-0 border-white/10 bg-white/5 px-3 py-2.5 text-sm text-gray-400">
                         .pdf
                       </span>
                     </div>
@@ -270,7 +270,7 @@ export default function CVUpload() {
       </div>
 
       {message && (
-        <p
+        <p role="status"
           className={`text-sm ${
             message.includes("mis à jour") ? "text-green-400" : "text-red-400"
           }`}

@@ -39,7 +39,7 @@ export default async function HomePage() {
   return (
     <>
       {/* <Navbar /> */}
-      <main className="min-h-screen">
+      <main id="main-content" tabIndex={-1} className="min-h-screen outline-none">
         <Hero profile={profile} cv={normalCv} />
         <CVDownload normalCv={normalCv} reducedCv={reducedCv} />
         {sectionSettings.educationVisible && (

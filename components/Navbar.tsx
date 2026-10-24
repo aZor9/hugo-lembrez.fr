@@ -40,7 +40,7 @@ export default function Navbar() {
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Menu"
           >
-            <svg
+            <svg aria-hidden="true"
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"
