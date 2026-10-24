@@ -73,7 +73,7 @@ export default function Footer() {
                   href="/accessibilite"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Accessibilité : non conforme RGAA (audit en cours)
+                  Accessibilité
                 </a>
               </p>
               <p className="text-gray-400">© {year} Hugo Lembrez. Tous droits réservés.</p>

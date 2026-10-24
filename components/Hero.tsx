@@ -22,14 +22,15 @@ export default function Hero({ profile, cv }: HeroProps) {
       <div className="max-w-4xl mx-auto text-center animate-fade-in">
         {/* Avatar */}
         <div className="mb-8 flex justify-center">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-2xl shadow-purple-500/20">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-2xl shadow-purple-500/20 select-none [-webkit-touch-callout:none]">
             {profile?.imageUrl ? (
               <Image
                 src={profile.imageUrl}
                 alt={profile.name || "Photo de profil"}
                 width={128}
                 height={128}
-                className="w-full h-full rounded-full object-cover"
+                className="w-full h-full rounded-full object-cover pointer-events-none select-none"
+                draggable={false}
                 priority
               />
             ) : (
